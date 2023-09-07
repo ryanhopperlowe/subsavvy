@@ -39,8 +39,7 @@ const api = new Route("/api");
 
 const auth = api.createRoute("/auth");
 const login = auth.createRoute("/signin");
-const usersApi = api.createRoute("/users");
+
+export const trpcRoute = api.createRoute("/trpc");
 
 export const Routes = { home, login };
-
-export const ApiRoutes = { auth, login, usersApi };

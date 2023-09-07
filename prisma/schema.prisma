@@ -1,0 +1,83 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             Int              @id @default(autoincrement())
+  email          String           @unique
+  phone          String           @unique
+  name           String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @default(now()) @updatedAt
+  UserClientsMap UserClientsMap[]
+}
+
+model Client {
+  id             Int              @id @default(autoincrement())
+  name           String
+  description    String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @default(now()) @updatedAt
+  UserClientsMap UserClientsMap[]
+  Plan           Plan[]
+}
+
+model UserClientsMap {
+  id        Int      @id @default(autoincrement())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
+  client    Client   @relation(fields: [clientId], references: [id])
+  clientId  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+enum Interval {
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  YEARLY
+}
+
+model Plan {
+  id           Int            @id @default(autoincrement())
+  name         String
+  client       Client         @relation(fields: [clientId], references: [id])
+  clientId     Int
+  description  String?
+  intervals    PlanInterval[]
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @default(now()) @updatedAt
+  Subscription Subscription[]
+}
+
+model PlanInterval {
+  id        Int      @id @default(autoincrement())
+  plan      Plan     @relation(fields: [planId], references: [id])
+  planId    Int
+  interval  Interval
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
+
+model Subscription {
+  id        Int      @id @default(autoincrement())
+  clientId  Int
+  userId    Int
+  plan      Plan     @relation(fields: [planId], references: [id])
+  planId    Int
+  price     Float
+  duration  Int
+  interval  Interval
+  features  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
