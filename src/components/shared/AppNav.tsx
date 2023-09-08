@@ -32,21 +32,15 @@ export const AppNav = () => {
   return (
     <Box
       as="nav"
-      bgColor="blue.400"
-      color="blue.100"
+      bgColor="prim.bold.bg"
+      color="prim.bold.content"
       className="flex align-middle p-4 gap-4"
     >
       <IconButton
         as="button"
         onClick={() => setIsOpen(true)}
         aria-label="menu"
-        sx={{
-          color: "blue.100",
-          _hover: {
-            bgColor: "blue.100",
-            color: "blue.400",
-          },
-        }}
+        colorScheme="prim"
       >
         <HamburgerIcon alignSelf="center" boxSize={5} />
       </IconButton>
@@ -54,10 +48,8 @@ export const AppNav = () => {
         SubSavvy
       </Heading>
       <Spacer />
-      <ButtonGroup colorScheme="blue">
-        <Button color="blue.100" onClick={logout}>
-          logout
-        </Button>
+      <ButtonGroup colorScheme="second">
+        <Button onClick={logout}>logout</Button>
       </ButtonGroup>
 
       <Drawer placement="left" isOpen={isOpen} onClose={() => setIsOpen(false)}>
@@ -93,10 +85,10 @@ export const AppNav = () => {
 
 const itemSx: SystemStyleObject = {
   width: "100%",
-  color: "blue.400",
+  color: "prim.400",
   p: 2,
   rounded: "md",
   _hover: {
-    bgColor: "blue.100",
+    bgColor: "prim.800",
   },
 };

@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "theme": "chakra-cli tokens ./src/styles/theme.ts",
+    "theme:watch": "chakra-cli tokens ./src/styles/theme.ts --watch"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.1.0",
@@ -38,6 +40,7 @@
     "zod": "^3.22.2"
   },
   "devDependencies": {
+    "@chakra-ui/cli": "^2.4.1",
     "prettier": "3.0.3",
     "prisma": "^5.2.0"
   }

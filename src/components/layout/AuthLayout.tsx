@@ -3,7 +3,7 @@ import { Routes } from "@/routes";
 import { useRouter } from "next/navigation";
 
 export const AuthLayout = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading, login } = useAuth();
+  const { user, loading } = useAuth();
   const router = useRouter();
 
   if (loading) {
