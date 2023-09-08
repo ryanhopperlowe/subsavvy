@@ -10,6 +10,8 @@ class Route<T extends RouteParams = never> {
   constructor(public readonly _path: string) {}
 
   createRoute(path: string) {
+    if (this._path === "/") return new Route(path);
+
     return new Route(this._path + path);
   }
 
@@ -35,11 +37,18 @@ class Route<T extends RouteParams = never> {
 }
 
 const home = new Route("/");
+const createClient = home.createRoute("/create-client");
+
 const api = new Route("/api");
 
 const auth = api.createRoute("/auth");
+
 const login = auth.createRoute("/signin");
 
-export const trpcRoute = api.createRoute("/trpc");
+export const Routes = {
+  createClient,
+  home,
+  login,
+};
 
-export const Routes = { home, login };
+export const trpcRoute = api.createRoute("/trpc");
