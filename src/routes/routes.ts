@@ -37,7 +37,12 @@ class Route<T extends RouteParams = never> {
 }
 
 const home = new Route("/");
-const createClient = home.createRoute("/create-client");
+
+const user = home.createRoute("/user");
+const updateProfile = user.createRoute("/update");
+
+const client = home.createRoute("/client");
+const createClient = client.createRoute("/create");
 
 const api = new Route("/api");
 
@@ -49,6 +54,7 @@ export const Routes = {
   createClient,
   home,
   login,
+  updateProfile,
 };
 
 export const trpcRoute = api.createRoute("/trpc");
