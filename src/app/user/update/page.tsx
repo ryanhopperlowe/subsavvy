@@ -28,9 +28,11 @@ const resolver = zodResolver(
 export default function UpdateUserPage() {
   const { user } = useAuth({ required: true });
 
-  const createUser = trpc.createUser.useMutation();
-  const getUser = trpc.getAuthedUser.useQuery(undefined, { enabled: false });
-  const updateUser = trpc.updateUser.useMutation();
+  const createUser = trpc.users.create.useMutation();
+  const getUser = trpc.users.getAuthed.useQuery(undefined, {
+    enabled: false,
+  });
+  const updateUser = trpc.users.update.useMutation();
 
   const { register, handleSubmit, formState } = useForm({
     defaultValues: async () => {

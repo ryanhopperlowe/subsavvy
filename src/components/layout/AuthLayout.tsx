@@ -1,6 +1,6 @@
 import { useAuth } from "@/hooks";
 import { trpc } from "@/lib";
-import { Routes, trpcRoute } from "@/routes";
+import { Routes } from "@/routes";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
@@ -9,8 +9,8 @@ export const AuthLayout = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const pathname = usePathname();
 
-  const getUsers = trpc.getUsers.useQuery();
-  const getAuthedUser = trpc.getAuthedUser.useQuery(undefined, {
+  const getUsers = trpc.users.getAll.useQuery();
+  const getAuthedUser = trpc.users.getAuthed.useQuery(undefined, {
     enabled: false,
   });
 
