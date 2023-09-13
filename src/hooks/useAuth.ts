@@ -1,4 +1,8 @@
+import { trpc } from "@/lib";
+import { Routes } from "@/routes";
+import { User } from "@prisma/client";
 import { signIn, signOut, useSession } from "next-auth/react";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 type OAuthUser = NonNullable<
@@ -10,7 +14,8 @@ type AuthState<T extends boolean | undefined> = {
   loggedIn: boolean;
   login: () => Promise<void>;
   logout: () => Promise<void>;
-  user: T extends true ? OAuthUser : OAuthUser | null;
+  oauthUser: T extends true ? OAuthUser : OAuthUser | null;
+  user: T extends true ? User : User | null;
 };
 
 export function useAuth<T extends boolean | undefined>({
@@ -19,10 +24,31 @@ export function useAuth<T extends boolean | undefined>({
   required?: T;
 } = {}): AuthState<T> {
   const { data, status } = useSession();
+  const pathname = usePathname();
+  const router = useRouter();
 
-  const user = data?.user;
-  const loading = status === "loading";
-  const loggedIn = !!user;
+  const oauthUser = data?.user;
+  const loggedIn = !!oauthUser;
+
+  const getProfile = trpc.users.getAuthed.useQuery(undefined, {
+    enabled: false,
+  });
+
+  useEffect(() => {
+    if (!oauthUser) return;
+    getProfile.refetch();
+  }, [oauthUser]);
+
+  useEffect(() => {
+    if (
+      getProfile.data ||
+      getProfile.isLoading ||
+      pathname === Routes.updateProfile.path()
+    )
+      return;
+
+    router.replace(Routes.updateProfile.path());
+  }, [getProfile.data, getProfile.isLoading, pathname]);
 
   useEffect(() => {
     if (required && !loggedIn) {
@@ -30,10 +56,13 @@ export function useAuth<T extends boolean | undefined>({
     }
   }, [required, loggedIn]);
 
+  const loading = status === "loading" || getProfile.isLoading;
+
   return {
-    user,
+    oauthUser,
     loading,
     loggedIn,
+    user: getProfile.data,
     login: () => signIn(),
     logout: () => signOut(),
   } as AuthState<T>;

@@ -26,7 +26,7 @@ const resolver = zodResolver(
 );
 
 export default function UpdateUserPage() {
-  const { user } = useAuth({ required: true });
+  const { oauthUser: user } = useAuth({ required: true });
 
   const createUser = trpc.users.create.useMutation();
   const getUser = trpc.users.getAuthed.useQuery(undefined, {

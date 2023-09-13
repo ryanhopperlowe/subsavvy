@@ -12,8 +12,6 @@ export function unauthorized() {
 export async function withUser<K>(fn: (user: any) => K) {
   const session = await getServerSession();
 
-  console.log("session", session);
-
   if (!session?.user) {
     throw unauthorized();
   }

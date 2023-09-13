@@ -48,7 +48,7 @@ export const AppNav = () => {
         SubSavvy
       </Heading>
       <Spacer />
-      <ButtonGroup colorScheme="second">
+      <ButtonGroup colorScheme="prim">
         <Button onClick={logout}>logout</Button>
       </ButtonGroup>
 
