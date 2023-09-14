@@ -1,7 +1,4 @@
 "use client";
-
-import { useAuth } from "@/hooks";
-import { CreateClient } from "@/model";
 import {
   Input,
   FormControl,
@@ -10,10 +7,14 @@ import {
   Container,
   Textarea,
   Button,
+  Heading,
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+
+import { useAuth } from "@/hooks";
+import { trpc } from "@/lib";
 
 const schema = z.object({
   name: z.string().min(4, "Name must be at least 4 characters"),
@@ -27,6 +28,8 @@ const schema = z.object({
 export default function CreateClient() {
   const { user: profile } = useAuth({ required: true });
 
+  const createClient = trpc.clients.create.useMutation();
+
   const { watch, handleSubmit, formState, register } = useForm({
     defaultValues: {
       description: "",
@@ -38,12 +41,17 @@ export default function CreateClient() {
 
   console.log(watch());
 
-  const onSubmit = handleSubmit(console.log);
+  const onSubmit = handleSubmit(async (data) => {
+    createClient.mutate({ ...data, users: [profile.id] });
+  });
   const { errors } = formState;
 
   return (
-    <Container>
-      <form onSubmit={onSubmit}>
+    <Container className="flex flex-col gap-4 align-middle p-4">
+      <Heading size="lg" className="text-center">
+        Create Your Service
+      </Heading>
+      <form onSubmit={onSubmit} className="flex flex-col gap-2 align-middle">
         <FormControl>
           <FormLabel>Give your service a name</FormLabel>
           <Input
@@ -77,7 +85,9 @@ export default function CreateClient() {
           />
           <FormHelperText>{errors.email?.message || " "}</FormHelperText>
         </FormControl>
-        <Button type="submit">Submit</Button>
+        <Button w="full" type="submit">
+          Submit
+        </Button>
       </form>
     </Container>
   );

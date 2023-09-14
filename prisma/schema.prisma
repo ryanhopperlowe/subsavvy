@@ -32,13 +32,6 @@ model Client {
   Plans       Plan[]
 }
 
-enum Interval {
-  WEEKLY
-  BIWEEKLY
-  MONTHLY
-  YEARLY
-}
-
 model Plan {
   id           Int            @id @default(autoincrement())
   name         String
@@ -49,6 +42,13 @@ model Plan {
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @default(now()) @updatedAt
   Subscription Subscription[]
+}
+
+enum Interval {
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  YEARLY
 }
 
 model PlanInterval {
