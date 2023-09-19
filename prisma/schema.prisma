@@ -11,37 +11,45 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  username  String   @unique
-  email     String   @unique
-  phone     String   @unique
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-  Clients   Client[]
+  id            Int       @id @default(autoincrement())
+  username      String    @unique
+  email         String    @unique
+  phone         String    @unique
+  name          String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
+  services      Service[] @relation(name: "UserService")
+  ownedServices Service[] @relation(name: "ServiceOwner")
 }
 
-model Client {
+// TODO: split out Service.Users into another table: ServiceUserInvites
+// to prevent users from being added to a service without their consent
+
+// TODO: setup an email provider to send invites to users if they don't have an account
+
+model Service {
   id          Int      @id @default(autoincrement())
   name        String
   email       String
   description String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @default(now()) @updatedAt
-  Users       User[]
-  Plans       Plan[]
+  owner       User     @relation(name: "ServiceOwner", fields: [ownerId], references: [id])
+  ownerId     Int
+  users       User[]   @relation(name: "UserService")
+  plans       Plan[]
 }
 
 model Plan {
   id           Int            @id @default(autoincrement())
   name         String
-  client       Client         @relation(fields: [clientId], references: [id])
-  clientId     Int
+  service      Service        @relation(fields: [serviceId], references: [id])
+  serviceId    Int
   description  String?
   intervals    PlanInterval[]
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @default(now()) @updatedAt
-  Subscription Subscription[]
+  subscription Subscription[]
 }
 
 enum Interval {
@@ -62,7 +70,7 @@ model PlanInterval {
 
 model Subscription {
   id        Int      @id @default(autoincrement())
-  clientId  Int
+  serviceId Int
   userId    Int
   plan      Plan     @relation(fields: [planId], references: [id])
   planId    Int
@@ -72,4 +80,14 @@ model Subscription {
   features  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+}
+
+model AuditLog {
+  id             Int      @id @default(autoincrement())
+  userId         Int
+  serviceId      Int
+  planId         Int
+  subscriptionId Int
+  action         String
+  createdAt      DateTime @default(now())
 }

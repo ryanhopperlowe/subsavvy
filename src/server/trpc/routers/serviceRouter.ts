@@ -1,21 +1,32 @@
-import { Plan } from "./../../../model/plan";
-import { prisma } from "@/server";
+import { getAuthentication, prisma } from "@/server";
 import { publicProcedure, router } from "../trpc";
-import { z } from "zod";
-import { clientCreateSchema } from "@/model";
+import { serviceCreateSchema } from "@/model";
 
-export const clientRouter = router({
-  getAll: publicProcedure.query(() => prisma.client.findMany()),
-  create: publicProcedure.input(clientCreateSchema).mutation(async (opts) => {
-    const created = await prisma.client.create({
+export const serviceRouter = router({
+  getAll: publicProcedure.query(() =>
+    prisma.service.findMany({
+      include: {
+        users: true,
+      },
+    })
+  ),
+  create: publicProcedure.input(serviceCreateSchema).mutation(async (opts) => {
+    const user = await getAuthentication();
+
+    const created = await prisma.service.create({
       data: {
         email: opts.input.email,
         name: opts.input.name,
         description: opts.input.description,
-        Users: {
+        owner: {
+          connect: {
+            email: user.email,
+          },
+        },
+        users: {
           connect: opts.input.users.map((id) => ({ id })),
         },
-        Plans: {
+        plans: {
           createMany: {
             data:
               opts.input.plans?.map((plan) => ({

@@ -66,7 +66,8 @@ export const AppNav = () => {
   function renderItems() {
     return [
       { label: "Home", path: Routes.home.path() },
-      { label: "Create Client", path: Routes.createClient.path() },
+      { label: "Create Service", path: Routes.createClient.path() },
+      { label: "Service List", path: Routes.serviceList.path() },
     ]
       .filter(({ path }) => path !== pathname)
       .map(({ label, path }) => renderItem(label, path));

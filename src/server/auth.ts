@@ -15,7 +15,21 @@ export async function withUser<K>(fn: (user: any) => K) {
   if (!session?.user) {
     throw unauthorized();
   }
-  return fn(session!.user);
+  return fn(session.user);
+}
+
+type FullRequired<T> = {
+  [P in keyof T]-?: NonNullable<T[P]>;
+};
+
+export async function getAuthentication() {
+  const session = await getServerSession();
+
+  if (!session?.user?.email) {
+    throw unauthorized();
+  }
+
+  return session.user as FullRequired<typeof session.user>;
 }
 
 export async function authorized<K>(userId: number, fn: (user: any) => K) {
@@ -36,4 +50,20 @@ export async function authorized<K>(userId: number, fn: (user: any) => K) {
   }
 
   return fn(session.user);
+}
+
+export async function verifyAuthorization(userId: number) {
+  const user = await getAuthentication();
+
+  const profile = await prisma.user.findUnique({
+    where: {
+      email: user.email!,
+    },
+  });
+
+  if (!profile || profile.id !== userId) {
+    throw unauthorized();
+  }
+
+  return profile;
 }

@@ -41,8 +41,8 @@ const home = new Route("/");
 const user = home.createRoute("/user");
 const updateProfile = user.createRoute("/update");
 
-const client = home.createRoute("/client");
-const createClient = client.createRoute("/create");
+const services = home.createRoute("/services");
+const createClient = services.createRoute("/create");
 
 const api = new Route("/api");
 
@@ -51,6 +51,7 @@ const auth = api.createRoute("/auth");
 const login = auth.createRoute("/signin");
 
 export const Routes = {
+  serviceList: services,
   createClient,
   home,
   login,
