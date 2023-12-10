@@ -1,22 +1,21 @@
-import { authorized, prisma, withUser } from "@/server";
-import { publicProcedure, router } from "../trpc";
+import { authorizedProcedure } from "./../trpc";
+import { prisma, unauthorized } from "@/server";
+import { authedProcedure, publicProcedure, router } from "../trpc";
 import { z } from "zod";
 
 export const userRouter = router({
   getAll: publicProcedure.query(async () => {
     return prisma.user.findMany();
   }),
-  getAuthed: publicProcedure.query(
-    async () =>
-      await withUser(async (user) => {
-        return await prisma.user.findUnique({
-          where: {
-            email: user.email,
-          },
-        });
+  getAuthed: authedProcedure.query(
+    async ({ ctx }) =>
+      await ctx.db.user.findUnique({
+        where: {
+          email: ctx.user.email,
+        },
       })
   ),
-  update: publicProcedure
+  update: authorizedProcedure
     .input(
       z.object({
         id: z.number(),
@@ -25,22 +24,21 @@ export const userRouter = router({
         username: z.string(),
       })
     )
-    .mutation(
-      async (opts) =>
-        await authorized(opts.input.id, async () =>
-          prisma.user.update({
-            where: {
-              id: opts.input.id,
-            },
-            data: {
-              name: opts.input.name,
-              phone: opts.input.phone,
-              username: opts.input.username,
-            },
-          })
-        )
-    ),
-  create: publicProcedure
+    .mutation(async ({ ctx, input }) => {
+      authorize(input.id, ctx.profile.id);
+
+      return ctx.db.user.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          name: input.name,
+          phone: input.phone,
+          username: input.username,
+        },
+      });
+    }),
+  create: authedProcedure
     .input(
       z.object({
         name: z.string(),
@@ -48,23 +46,31 @@ export const userRouter = router({
         username: z.string(),
       })
     )
-    .mutation((opts) =>
-      withUser(async (user) => {
-        return prisma.user.create({
-          data: {
-            name: opts.input.name,
-            email: user.email,
-            phone: opts.input.phone,
-            username: opts.input.username,
-          },
-        });
+    .mutation(({ ctx, input }) =>
+      ctx.db.user.create({
+        data: {
+          name: input.name,
+          email: ctx.user.email,
+          phone: input.phone,
+          username: input.username,
+        },
       })
     ),
-  delete: publicProcedure.input(z.number()).mutation(async (opts) => {
-    return prisma.user.delete({
-      where: {
-        id: opts.input,
-      },
-    });
-  }),
+  delete: authorizedProcedure
+    .input(z.number())
+    .mutation(async ({ ctx, input }) => {
+      authorize(input, ctx.profile.id);
+
+      return ctx.db.user.delete({
+        where: {
+          id: input,
+        },
+      });
+    }),
 });
+
+function authorize(input: number, profileId?: number) {
+  if (profileId !== input) {
+    throw unauthorized();
+  }
+}

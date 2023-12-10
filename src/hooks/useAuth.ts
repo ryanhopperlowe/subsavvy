@@ -31,13 +31,8 @@ export function useAuth<T extends boolean | undefined>({
   const loggedIn = !!oauthUser;
 
   const getProfile = trpc.users.getAuthed.useQuery(undefined, {
-    enabled: false,
+    enabled: loggedIn,
   });
-
-  useEffect(() => {
-    if (!oauthUser) return;
-    getProfile.refetch();
-  }, [oauthUser]);
 
   useEffect(() => {
     if (
@@ -56,7 +51,9 @@ export function useAuth<T extends boolean | undefined>({
     }
   }, [required, loggedIn]);
 
-  const loading = status === "loading" || getProfile.isLoading;
+  const loading =
+    status === "loading" ||
+    (getProfile.isLoading && getProfile.fetchStatus !== "idle");
 
   return {
     oauthUser,

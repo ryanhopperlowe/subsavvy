@@ -1,5 +1,5 @@
-import { getAuthentication, prisma } from "@/server";
-import { publicProcedure, router } from "../trpc";
+import { prisma } from "@/server";
+import { authedProcedure, publicProcedure, router } from "../trpc";
 import { serviceCreateSchema } from "@/model";
 
 export const serviceRouter = router({
@@ -10,44 +10,44 @@ export const serviceRouter = router({
       },
     })
   ),
-  create: publicProcedure.input(serviceCreateSchema).mutation(async (opts) => {
-    const user = await getAuthentication();
-
-    const created = await prisma.service.create({
-      data: {
-        email: opts.input.email,
-        name: opts.input.name,
-        description: opts.input.description,
-        owner: {
-          connect: {
-            email: user.email,
+  create: authedProcedure
+    .input(serviceCreateSchema)
+    .mutation(async ({ ctx, input }) => {
+      const created = await prisma.service.create({
+        data: {
+          email: input.email,
+          name: input.name,
+          description: input.description,
+          owner: {
+            connect: {
+              email: ctx.user.email,
+            },
+          },
+          users: {
+            connect: input.users.map((id) => ({ id })),
+          },
+          plans: {
+            createMany: {
+              data:
+                input.plans?.map((plan) => ({
+                  name: plan.name,
+                  description: plan.description,
+                  price: plan.price,
+                })) || [],
+            },
           },
         },
-        users: {
-          connect: opts.input.users.map((id) => ({ id })),
-        },
-        plans: {
-          createMany: {
-            data:
-              opts.input.plans?.map((plan) => ({
-                name: plan.name,
-                description: plan.description,
-                price: plan.price,
-              })) || [],
-          },
-        },
-      },
-    });
+      });
 
-    await prisma.planInterval.createMany({
-      skipDuplicates: true,
-      data:
-        opts.input.plans?.map((plan) => ({
-          planId: created.id,
-          interval: plan.interval,
-        })) || [],
-    });
+      await prisma.planInterval.createMany({
+        skipDuplicates: true,
+        data:
+          input.plans?.map((plan) => ({
+            planId: created.id,
+            interval: plan.interval,
+          })) || [],
+      });
 
-    return created;
-  }),
+      return created;
+    }),
 });
