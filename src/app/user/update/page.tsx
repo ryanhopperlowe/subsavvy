@@ -70,7 +70,7 @@ export default function UpdateUserPage() {
         <Stack spacing={4}>
           <FormControl id="email">
             <FormLabel>Email address</FormLabel>
-            <Input type="email" disabled value={user.email || ""} />
+            <Input type="email" disabled value={user.email} />
           </FormControl>
           <FormControl id="username">
             <FormLabel>Username</FormLabel>
@@ -81,10 +81,7 @@ export default function UpdateUserPage() {
           </FormControl>
           <FormControl id="name">
             <FormLabel>Name</FormLabel>
-            <Input
-              placeholder="John Doe"
-              {...register("name", { required: true })}
-            />
+            <Input placeholder="John Doe" {...register("name")} />
             <FormHelperText>{formState.errors.name?.type}</FormHelperText>
           </FormControl>
           <FormControl id="phone">

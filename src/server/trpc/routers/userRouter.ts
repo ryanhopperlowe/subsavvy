@@ -1,61 +1,34 @@
 import { authorizedProcedure } from "./../trpc";
-import { prisma, unauthorized } from "@/server";
+import { unauthorized } from "@/server";
 import { authedProcedure, publicProcedure, router } from "../trpc";
 import { z } from "zod";
 import { userCreateSchema, userUpdateSchema } from "@/model";
 
 export const userRouter = router({
-  getAll: publicProcedure.query(async () => {
-    return prisma.user.findMany();
-  }),
-  getAuthed: authedProcedure.query(
-    async ({ ctx }) =>
-      await ctx.db.user.findUnique({
-        where: {
-          email: ctx.user.email,
-        },
-      })
+  getAll: publicProcedure.query(async ({ ctx }) => ctx.dbs.users.findMany()),
+  getAuthed: authedProcedure.query(async ({ ctx }) =>
+    ctx.dbs.users.findByEmail(ctx.user.email)
   ),
   update: authorizedProcedure
     .input(userUpdateSchema)
     .mutation(async ({ ctx, input }) => {
-      authorize(input.id, ctx.profile.id);
+      verifyAuthorization(input.id, ctx.profile.id);
 
-      return ctx.db.user.update({
-        where: {
-          id: input.id,
-        },
-        data: {
-          name: input.name,
-          phone: input.phone,
-          username: input.username,
-        },
-      });
+      return ctx.dbs.users.update(input);
     }),
-  create: authedProcedure.input(userCreateSchema).mutation(({ ctx, input }) =>
-    ctx.db.user.create({
-      data: {
-        name: input.name,
-        email: ctx.user.email,
-        phone: input.phone,
-        username: input.username,
-      },
-    })
-  ),
+  create: authedProcedure.input(userCreateSchema).mutation(({ ctx, input }) => {
+    return ctx.dbs.users.create(ctx.user.email, input);
+  }),
   delete: authorizedProcedure
     .input(z.number())
     .mutation(async ({ ctx, input }) => {
-      authorize(input, ctx.profile.id);
+      verifyAuthorization(input, ctx.profile.id);
 
-      return ctx.db.user.delete({
-        where: {
-          id: input,
-        },
-      });
+      return ctx.dbs.users.delete(input);
     }),
 });
 
-function authorize(input: number, profileId?: number) {
+function verifyAuthorization(input: number, profileId?: number) {
   if (profileId !== input) {
     throw unauthorized();
   }
