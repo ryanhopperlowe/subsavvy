@@ -2,6 +2,7 @@ import { authorizedProcedure } from "./../trpc";
 import { prisma, unauthorized } from "@/server";
 import { authedProcedure, publicProcedure, router } from "../trpc";
 import { z } from "zod";
+import { userCreateSchema, userUpdateSchema } from "@/model";
 
 export const userRouter = router({
   getAll: publicProcedure.query(async () => {
@@ -16,14 +17,7 @@ export const userRouter = router({
       })
   ),
   update: authorizedProcedure
-    .input(
-      z.object({
-        id: z.number(),
-        name: z.string(),
-        phone: z.string(),
-        username: z.string(),
-      })
-    )
+    .input(userUpdateSchema)
     .mutation(async ({ ctx, input }) => {
       authorize(input.id, ctx.profile.id);
 
@@ -38,24 +32,16 @@ export const userRouter = router({
         },
       });
     }),
-  create: authedProcedure
-    .input(
-      z.object({
-        name: z.string(),
-        phone: z.string(),
-        username: z.string(),
-      })
-    )
-    .mutation(({ ctx, input }) =>
-      ctx.db.user.create({
-        data: {
-          name: input.name,
-          email: ctx.user.email,
-          phone: input.phone,
-          username: input.username,
-        },
-      })
-    ),
+  create: authedProcedure.input(userCreateSchema).mutation(({ ctx, input }) =>
+    ctx.db.user.create({
+      data: {
+        name: input.name,
+        email: ctx.user.email,
+        phone: input.phone,
+        username: input.username,
+      },
+    })
+  ),
   delete: authorizedProcedure
     .input(z.number())
     .mutation(async ({ ctx, input }) => {

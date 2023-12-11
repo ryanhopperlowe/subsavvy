@@ -1,10 +1,9 @@
-import { prisma } from "@/server";
 import { authedProcedure, publicProcedure, router } from "../trpc";
 import { serviceCreateSchema } from "@/model";
 
 export const serviceRouter = router({
-  getAll: publicProcedure.query(() =>
-    prisma.service.findMany({
+  getAll: publicProcedure.query(({ ctx }) =>
+    ctx.db.service.findMany({
       include: {
         users: true,
       },
@@ -13,7 +12,7 @@ export const serviceRouter = router({
   create: authedProcedure
     .input(serviceCreateSchema)
     .mutation(async ({ ctx, input }) => {
-      const created = await prisma.service.create({
+      const created = await ctx.db.service.create({
         data: {
           email: input.email,
           name: input.name,
@@ -32,14 +31,13 @@ export const serviceRouter = router({
                 input.plans?.map((plan) => ({
                   name: plan.name,
                   description: plan.description,
-                  price: plan.price,
                 })) || [],
             },
           },
         },
       });
 
-      await prisma.planInterval.createMany({
+      await ctx.db.planInterval.createMany({
         skipDuplicates: true,
         data:
           input.plans?.map((plan) => ({

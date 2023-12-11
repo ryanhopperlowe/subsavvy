@@ -16,8 +16,8 @@ import {
   ListItem,
   Spacer,
   SystemStyleObject,
+  useDisclosure,
 } from "@chakra-ui/react";
-import { useState } from "react";
 import NextLink from "next/link";
 import { Routes } from "@/routes";
 import { usePathname, useRouter } from "next/navigation";
@@ -26,8 +26,7 @@ export const AppNav = () => {
   const { logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-
-  const [isOpen, setIsOpen] = useState(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   return (
     <Box
@@ -38,7 +37,7 @@ export const AppNav = () => {
     >
       <IconButton
         as="button"
-        onClick={() => setIsOpen(true)}
+        onClick={onOpen}
         aria-label="menu"
         colorScheme="prim"
       >
@@ -52,7 +51,7 @@ export const AppNav = () => {
         <Button onClick={logout}>logout</Button>
       </ButtonGroup>
 
-      <Drawer placement="left" isOpen={isOpen} onClose={() => setIsOpen(false)}>
+      <Drawer placement="left" isOpen={isOpen} onClose={onOpen}>
         <DrawerOverlay />
         <DrawerContent>
           <DrawerCloseButton />
@@ -75,7 +74,7 @@ export const AppNav = () => {
 
   function renderItem(label: string, path: string) {
     return (
-      <ListItem display="flex" onClick={() => setIsOpen(false)} key={label}>
+      <ListItem display="flex" onClick={onClose} key={label}>
         <Link as={NextLink} href={path} sx={itemSx}>
           {label}
         </Link>
