@@ -7,25 +7,25 @@ generator client {
 }
 
 generator zod {
-  provider                 = "zod-prisma"
-  output                   = "./models" // (default) the directory where generated zod schemas will be saved
+  provider = "zod-prisma"
+  output   = "./models" // (default) the directory where generated zod schemas will be saved
 
-  relationModel            = true // (default) Create and export both plain and related models.
+  relationModel = true // (default) Create and export both plain and related models.
   // relationModel         = "default" // Do not export model without relations.
   // relationModel         = false // Do not generate related model
 
-  modelCase                = "PascalCase" // (default) Output models using pascal case (ex. UserModel, PostModel)
+  modelCase = "PascalCase" // (default) Output models using pascal case (ex. UserModel, PostModel)
   // modelCase             = "camelCase" // Output models using camel case (ex. userModel, postModel)
 
-  modelSuffix              = "Model" // (default) Suffix to apply to your prisma models when naming Zod schemas
+  modelSuffix = "Model" // (default) Suffix to apply to your prisma models when naming Zod schemas
 
   // useDecimalJs          = false // (default) represent the prisma Decimal type using as a JS number
-  useDecimalJs             = true // represent the prisma Decimal type using Decimal.js (as Prisma does)
+  useDecimalJs = true // represent the prisma Decimal type using Decimal.js (as Prisma does)
 
-  imports                  = "" // (default) will import the referenced file in generated schemas to be used via imports.someExportedVariable
+  imports = "" // (default) will import the referenced file in generated schemas to be used via imports.someExportedVariable
 
   // https://www.prisma.io/docs/concepts/components/prisma-client/working-with-fields/working-with-json-fields#filtering-by-null-values
-  prismaJsonNullability    = true // (default) uses prisma's scheme for JSON field nullability
+  prismaJsonNullability = true // (default) uses prisma's scheme for JSON field nullability
   // prismaJsonNullability = false // allows null assignment to optional JSON fields
 }
 
@@ -40,15 +40,20 @@ model User {
   email         String    @unique
   phone         String    @unique
   name          String
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now()) @updatedAt
+
+
   services      Service[] @relation(name: "UserService")
   ownedServices Service[] @relation(name: "ServiceOwner")
+  subscriptions Subscription[]
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
 }
 
 // TODO: split out Service.Users into another table: ServiceUserInvites
 // to prevent users from being added to a service without their consent
 
+// TODO: allow email invites to manage a service
 // TODO: setup an email provider to send invites to users if they don't have an account
 
 model Service {
@@ -56,64 +61,86 @@ model Service {
   name        String
   email       String
   description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
-  owner       User     @relation(name: "ServiceOwner", fields: [ownerId], references: [id])
+
   ownerId     Int
+
+  owner       User     @relation(name: "ServiceOwner", fields: [ownerId], references: [id])
   users       User[]   @relation(name: "UserService")
   plans       Plan[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
 }
 
 model Plan {
-  id           Int            @id @default(autoincrement())
-  name         String
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+
+  serviceId   Int
+
   service      Service        @relation(fields: [serviceId], references: [id])
-  serviceId    Int
-  description  String?
-  intervals    PlanInterval[]
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @default(now()) @updatedAt
+  billOptions  BillOption[]
   subscription Subscription[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
-enum Interval {
+enum BillFrequency {
   WEEKLY
   BIWEEKLY
   MONTHLY
   YEARLY
+
+  @@map("Interval")
 }
 
-model PlanInterval {
-  id        Int      @id @default(autoincrement())
-  planId    Int
-  interval  Interval
+model BillOption {
+  id       Int           @id @default(autoincrement())
+  interval BillFrequency
+  price    Float
 
-  plan      Plan     @relation(fields: [planId], references: [id])
+  planId   Int
+
+  plan          Plan           @relation(fields: [planId], references: [id])
+  subscriptions Subscription[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+
+  @@map("PlanInterval")
 }
 
 model Subscription {
-  id        Int      @id @default(autoincrement())
-  serviceId Int
-  userId    Int
-  plan      Plan     @relation(fields: [planId], references: [id])
-  planId    Int
-  price     Float
-  duration  Int
-  interval  Interval
-  features  String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  id       Int     @id @default(autoincrement())
+  price    Float
+  duration Int
+  features String?
+
+  serviceId    Int
+  userId       Int
+  planId       Int
+  billOptionId Int
+
+  plan       Plan       @relation(fields: [planId], references: [id])
+  billOption BillOption @relation(fields: [billOptionId], references: [id])
+  usere      User       @relation(fields: [userId], references: [id])
+
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @default(now()) @updatedAt
+
+  @@unique([userId, planId], name: "SubscriptionUnique")
 }
 
 model AuditLog {
   id             Int      @id @default(autoincrement())
+
   userId         Int
   serviceId      Int
   planId         Int
   subscriptionId Int
+
   action         String
   createdAt      DateTime @default(now())
 }

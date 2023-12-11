@@ -1,9 +1,9 @@
 import { z } from "zod";
-import { Interval as PrismaInterval, Prisma } from "@prisma/client";
-import { PlanIntervalModel, PlanModel } from "$/models";
+import { BillFrequency as PrismaBillFrequency } from "@prisma/client";
+import { BillOptionModel, PlanModel } from "$/models";
 
-export type PlanInterval = PrismaInterval;
-const PlanInterval = PrismaInterval;
+export type BillFrequency = PrismaBillFrequency;
+const PlanInterval = PrismaBillFrequency;
 
 const PLAN_INTERVAL_VALUES = [
   PlanInterval.WEEKLY,
@@ -12,10 +12,10 @@ const PLAN_INTERVAL_VALUES = [
   PlanInterval.YEARLY,
 ] as const;
 
-const planIntervalSchema = PlanIntervalModel;
+const billOptionSchema = BillOptionModel;
 const planSchema = PlanModel;
 
-const planIntervalCreateSchema = planIntervalSchema.omit({
+const planIntervalCreateSchema = billOptionSchema.omit({
   createdAt: true,
   updatedAt: true,
   id: true,
@@ -28,7 +28,7 @@ export const planCreateSchema = planSchema
     id: true,
   })
   .extend({
-    interval: planIntervalSchema.shape.interval,
+    interval: billOptionSchema.shape.interval,
   });
 
 export type Plan = z.infer<typeof planSchema>;
