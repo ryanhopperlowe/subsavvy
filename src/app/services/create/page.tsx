@@ -2,6 +2,7 @@
 
 import {
   Input,
+  Text,
   FormControl,
   FormLabel,
   FormHelperText,
@@ -20,6 +21,7 @@ import { useAuth } from "@/hooks";
 import { trpc } from "@/lib";
 import { useRouter } from "next/navigation";
 import { Routes } from "@/routes";
+import { useEffect } from "react";
 
 const schema = z.object({
   name: z.string().min(4, "Name must be at least 4 characters"),
@@ -28,7 +30,15 @@ const schema = z.object({
     .min(4, "Description must be between 4 and 100 characters")
     .max(100, "Description must be between 4 and 100 characters"),
   email: z.string().email("Invalid email address"),
+  otherEmails: z.array(z.string().email("Invalid email address")),
 });
+
+type Fields = {
+  name: string;
+  description: string;
+  email: string;
+  otherEmails: string[];
+};
 
 export default function CreateClient() {
   const { user: profile } = useAuth({ required: true });
@@ -38,18 +48,26 @@ export default function CreateClient() {
     onSuccess: () => router.push(Routes.serviceList.path()),
   });
 
-  const { watch, handleSubmit, formState, register } = useForm({
-    defaultValues: {
-      description: "",
-      email: "",
-      name: "",
-    },
-    resolver: zodResolver(schema),
+  const emailForm = useForm({
+    defaultValues: { email: "" },
+    resolver: zodResolver(
+      z.object({ email: z.string().email("Invalid email address") })
+    ),
   });
 
-  console.log(watch());
+  const { watch, handleSubmit, formState, register, setValue, control } =
+    useForm<Fields>({
+      defaultValues: {
+        description: "",
+        email: "",
+        name: "",
+        otherEmails: [],
+      },
+      resolver: zodResolver(schema),
+    });
 
-  const onSubmit = handleSubmit(async (data) => {
+  // TODO - add emails to backendn service to be able to invite users
+  const onSubmit = handleSubmit(async ({ otherEmails, ...data }) => {
     createClient.mutate({ ...data, users: [profile.id] });
   });
   const { errors } = formState;
@@ -104,6 +122,58 @@ export default function CreateClient() {
               />
               <FormHelperText>{errors.email?.message || " "}</FormHelperText>
             </FormControl>
+
+            <FormControl>
+              <FormLabel>Invite other people to manage this Service</FormLabel>
+              <Box className="grid grid-cols-12 gap-2">
+                <Box className="col-span-10">
+                  <Input
+                    type="email"
+                    placeholder="Email"
+                    errorBorderColor="red.300"
+                    {...emailForm.register("email", { required: true })}
+                  />
+                  <FormHelperText>
+                    {emailForm.formState.errors.email?.message || " "}
+                  </FormHelperText>
+                </Box>
+                <Button
+                  className="col-span-2"
+                  colorScheme="blue"
+                  isDisabled={!emailForm.formState.isValid}
+                  variant="outline"
+                  onClick={() => {
+                    setValue(
+                      "otherEmails",
+                      watch("otherEmails").concat(emailForm.watch("email"))
+                    );
+                    emailForm.reset();
+                  }}
+                >
+                  Add
+                </Button>
+                {watch("otherEmails").map((email, i) => (
+                  <>
+                    <Text className="col-span-10 pl-4">{email}</Text>
+                    <Button
+                      className="col-span-2"
+                      colorScheme="red"
+                      variant="outline"
+                      onClick={() => {
+                        setValue(
+                          "otherEmails",
+                          watch("otherEmails").filter((_, j) => j !== i)
+                        );
+                      }}
+                    >
+                      Remove
+                    </Button>
+                  </>
+                ))}
+              </Box>
+              <Box></Box>
+            </FormControl>
+
             <Button w="full" type="submit">
               Submit
             </Button>

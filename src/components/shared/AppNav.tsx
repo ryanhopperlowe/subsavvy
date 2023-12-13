@@ -51,7 +51,7 @@ export const AppNav = () => {
         <Button onClick={logout}>logout</Button>
       </ButtonGroup>
 
-      <Drawer placement="left" isOpen={isOpen} onClose={onOpen}>
+      <Drawer placement="left" isOpen={isOpen} onClose={onClose}>
         <DrawerOverlay />
         <DrawerContent>
           <DrawerCloseButton />
