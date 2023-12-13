@@ -35,19 +35,18 @@ datasource db {
 }
 
 model User {
-  id            Int       @id @default(autoincrement())
-  username      String    @unique
-  email         String    @unique
-  phone         String    @unique
-  name          String
+  id       Int    @id @default(autoincrement())
+  username String @unique /// @zod.max(22)
+  email    String @unique /// @zod.email("Invalid email address")
+  phone    String @unique
+  name     String /// @zod.max(50)
 
-
-  services      Service[] @relation(name: "UserService")
-  ownedServices Service[] @relation(name: "ServiceOwner")
+  services      Service[]      @relation(name: "UserService")
+  ownedServices Service[]      @relation(name: "ServiceOwner")
   subscriptions Subscription[]
 
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @default(now()) @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 // TODO: split out Service.Users into another table: ServiceUserInvites
@@ -57,19 +56,19 @@ model User {
 // TODO: setup an email provider to send invites to users if they don't have an account
 
 model Service {
-  id          Int      @id @default(autoincrement())
+  id          Int     @id @default(autoincrement())
   name        String
   email       String
   description String?
 
-  ownerId     Int
+  ownerId Int
 
-  owner       User     @relation(name: "ServiceOwner", fields: [ownerId], references: [id])
-  users       User[]   @relation(name: "UserService")
-  plans       Plan[]
+  owner User   @relation(name: "ServiceOwner", fields: [ownerId], references: [id])
+  users User[] @relation(name: "UserService")
+  plans Plan[]
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @default(now()) @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
 model Plan {
@@ -77,7 +76,7 @@ model Plan {
   name        String
   description String?
 
-  serviceId   Int
+  serviceId Int
 
   service      Service        @relation(fields: [serviceId], references: [id])
   billOptions  BillOption[]
@@ -101,7 +100,7 @@ model BillOption {
   interval BillFrequency
   price    Float
 
-  planId   Int
+  planId Int
 
   plan          Plan           @relation(fields: [planId], references: [id])
   subscriptions Subscription[]
@@ -127,20 +126,20 @@ model Subscription {
   billOption BillOption @relation(fields: [billOptionId], references: [id])
   usere      User       @relation(fields: [userId], references: [id])
 
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @default(now()) @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 
   @@unique([userId, planId], name: "SubscriptionUnique")
 }
 
 model AuditLog {
-  id             Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
   userId         Int
   serviceId      Int
   planId         Int
   subscriptionId Int
 
-  action         String
-  createdAt      DateTime @default(now())
+  action    String
+  createdAt DateTime @default(now())
 }
