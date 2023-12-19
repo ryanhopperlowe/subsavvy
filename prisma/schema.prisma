@@ -56,7 +56,7 @@ model User {
 model ServiceUserInvites {
   id Int @id @default(autoincrement())
 
-  email    String
+  email String /// @zod.email()
 
   serviceId Int
   userId    Int?
@@ -71,8 +71,8 @@ model ServiceUserInvites {
 model Service {
   id          Int     @id @default(autoincrement())
   name        String
-  email       String
-  description String?
+  email       String /// @zod.email()
+  description String? /// @zod.max(100)
 
   ownerId Int
 
@@ -87,8 +87,8 @@ model Service {
 
 model Plan {
   id          Int     @id @default(autoincrement())
-  name        String
-  description String?
+  name        String /// @zod.max(50)
+  description String? /// @zod.max(100)
 
   serviceId Int
 
@@ -112,7 +112,7 @@ enum BillFrequency {
 model BillOption {
   id       Int           @id @default(autoincrement())
   interval BillFrequency
-  price    Float
+  price    Float /// @zod.min(0)
 
   planId Int
 
@@ -127,8 +127,8 @@ model BillOption {
 
 model Subscription {
   id       Int     @id @default(autoincrement())
-  price    Float
-  duration Int
+  price    Float /// @zod.min(0)
+  duration Int /// @zod.min(0)
   features String?
 
   serviceId    Int

@@ -6,7 +6,7 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <AuthLayout>
       <AppNav />
-      <Box as="main" className="h-full">
+      <Box as="main" className="h-full py-2">
         {children}
       </Box>
     </AuthLayout>

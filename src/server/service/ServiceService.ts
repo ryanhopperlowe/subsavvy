@@ -28,11 +28,11 @@ export class ServiceService extends RootService {
   async getById(serviceId: number) {
     return this.db.service.findUnique({
       where: { id: serviceId },
-      include: { users: true },
+      include: { plans: true },
     });
   }
 
-  async isEditAuthorized(serviceId: number, userId: number) {
+  async canEdit(serviceId: number, userId: number) {
     const service = await this.db.service.findUnique({
       where: { id: serviceId },
       select: { ownerId: true, users: { select: { id: true } } },
@@ -52,6 +52,19 @@ export class ServiceService extends RootService {
     });
 
     return service && service.ownerId === userId;
+  }
+
+  async canView(serviceId: number, userId: number) {
+    const service = await this.db.service.findUnique({
+      where: { id: serviceId },
+      select: { ownerId: true, users: { select: { id: true } } },
+    });
+
+    if (!service) return false;
+
+    if (service.ownerId === userId) return true;
+
+    return service.users.some((user) => user.id === userId);
   }
 
   async deleteService(serviceId: number) {

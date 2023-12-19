@@ -1,21 +1,24 @@
-type RouteParams = {
-  [key: string]: string | number | boolean;
-} & {
-  queryParams?: Record<string, string>;
+type Params = Record<string, string>;
+
+type RouteParams<TQuery extends Params, TPath extends Params> = TPath & {
+  queryParams?: TQuery;
 };
 
-class Route<T extends RouteParams = never> {
+class Route<TQuery extends Params = {}, TPath extends Params = {}> {
+  // TODO: get from env
   static ROOT = "http://localhost:3000";
 
   constructor(public readonly _path: string) {}
 
-  createRoute(path: string) {
-    if (this._path === "/") return new Route(path);
+  createRoute<TQ extends TQuery = TQuery, TP extends TPath = TPath>(
+    path: string
+  ) {
+    if (this._path === "/") return new Route<TQ, TP>(path);
 
-    return new Route(this._path + path);
+    return new Route<TQ, TP>(this._path + path);
   }
 
-  path(params?: T) {
+  path(params?: RouteParams<TQuery, TPath>) {
     if (!params) return this._path;
 
     const qs = new URLSearchParams(params?.queryParams || {});
@@ -27,7 +30,7 @@ class Route<T extends RouteParams = never> {
     );
   }
 
-  api(params?: T) {
+  api(params?: RouteParams<TQuery, TPath>) {
     return Route.ROOT + this.path(params);
   }
 
@@ -42,6 +45,7 @@ const user = home.createRoute("/user");
 const updateProfile = user.createRoute("/update");
 
 const services = home.createRoute("/services");
+const serviceView = services.createRoute<{}, { id: string }>("/:id");
 const createClient = services.createRoute("/create");
 
 const api = new Route("/api");
@@ -53,6 +57,7 @@ const login = auth.createRoute("/signin");
 export const Routes = {
   serviceList: services,
   createClient,
+  serviceView,
   home,
   login,
   updateProfile,

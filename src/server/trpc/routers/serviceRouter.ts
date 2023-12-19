@@ -6,10 +6,23 @@ import {
   router,
 } from "../trpc";
 import { serviceCreateSchema } from "@/model";
-import { unauthorized } from "@/server";
+import { notFound, unauthorized } from "@/server";
 
 export const serviceRouter = router({
   getAll: publicProcedure.query(({ ctx }) => ctx.dbs.services.getAll()),
+  getById: authorizedProcedure
+    .input(z.number())
+    .query(async ({ ctx, input }) => {
+      const [service, canView] = await Promise.all([
+        ctx.dbs.services.getById(input),
+        ctx.dbs.services.canView(input, ctx.profile.id),
+      ]);
+
+      if (!service) throw notFound();
+      if (!canView) throw unauthorized();
+
+      return service;
+    }),
   create: authedProcedure
     .input(serviceCreateSchema)
     .mutation(async ({ ctx, input }) => {

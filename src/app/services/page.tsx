@@ -1,7 +1,9 @@
 "use client";
 import { ConfirmModal } from "@/components/shared";
 import { formatDate, trpc } from "@/lib";
+import { Routes } from "@/routes";
 import { Box, Button, Container, Text, useDisclosure } from "@chakra-ui/react";
+import { useRouter } from "next/navigation";
 
 export default function ServiceListPage() {
   const getClients = trpc.services.getAll.useQuery();
@@ -16,6 +18,8 @@ export default function ServiceListPage() {
     getClients.refetch();
   };
 
+  const router = useRouter();
+
   return (
     <Container>
       <Box className="flex flex-col gap-4">
@@ -25,13 +29,28 @@ export default function ServiceListPage() {
               <Text>{client.name}</Text>
               <Text>{formatDate(client.createdAt)}</Text>
             </Box>
-            <Button
-              variant="outline"
-              colorScheme="red"
-              onClick={confirm.onOpen}
-            >
-              Delete
-            </Button>
+
+            <Box className="flex gap-2">
+              <Button
+                variant="outline"
+                colorScheme="prim"
+                onClick={() =>
+                  router.push(
+                    Routes.serviceView.path({ id: String(client.id) })
+                  )
+                }
+              >
+                View
+              </Button>
+
+              <Button
+                variant="outline"
+                colorScheme="red"
+                onClick={confirm.onOpen}
+              >
+                Delete
+              </Button>
+            </Box>
 
             <ConfirmModal
               isOpen={confirm.isOpen}

@@ -1,11 +1,17 @@
 import { TRPCError } from "@trpc/server";
 import { getServerSession } from "next-auth";
-import { prisma } from "./prisma";
 
 export function unauthorized() {
   return new TRPCError({
     code: "UNAUTHORIZED",
     message: "Unauthorized",
+  });
+}
+
+export function notFound() {
+  return new TRPCError({
+    code: "NOT_FOUND",
+    message: "Not found",
   });
 }
 
