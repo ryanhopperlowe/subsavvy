@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "theme": "chakra-cli tokens ./src/styles/theme.ts",
-    "theme:watch": "chakra-cli tokens ./src/styles/theme.ts --watch"
+    "theme:watch": "chakra-cli tokens ./src/styles/theme.ts --watch",
+    "db:push": "prisma generate && prisma db push"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.1.0",

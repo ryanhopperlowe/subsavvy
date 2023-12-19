@@ -21,7 +21,7 @@ import { useAuth } from "@/hooks";
 import { trpc } from "@/lib";
 import { useRouter } from "next/navigation";
 import { Routes } from "@/routes";
-import { useEffect } from "react";
+import { Fragment, useEffect } from "react";
 
 const schema = z.object({
   name: z.string().min(4, "Name must be at least 4 characters"),
@@ -55,22 +55,27 @@ export default function CreateClient() {
     ),
   });
 
-  const { watch, handleSubmit, formState, register, setValue, control } =
-    useForm<Fields>({
-      defaultValues: {
-        description: "",
-        email: "",
-        name: "",
-        otherEmails: [],
-      },
-      resolver: zodResolver(schema),
-    });
+  const serviceForm = useForm<Fields>({
+    defaultValues: {
+      description: "",
+      email: "",
+      name: "",
+      otherEmails: [],
+    },
+    resolver: zodResolver(schema),
+  });
 
   // TODO - add emails to backendn service to be able to invite users
-  const onSubmit = handleSubmit(async ({ otherEmails, ...data }) => {
-    createClient.mutate({ ...data, users: [profile.id] });
-  });
-  const { errors } = formState;
+  const onSubmit = serviceForm.handleSubmit(
+    async ({ otherEmails, ...data }) => {
+      createClient.mutate({
+        ...data,
+        users: [profile.id],
+        emailInvites: otherEmails,
+      });
+    }
+  );
+  const { errors } = serviceForm.formState;
 
   return (
     <Container className="flex flex-col gap-4 align-middle p-4 h-full">
@@ -91,8 +96,8 @@ export default function CreateClient() {
               <FormLabel>Give your service a name</FormLabel>
               <Input
                 isInvalid={!!errors.name}
-                placeholder=""
-                {...register("name", { required: true })}
+                placeholder="Name of your Service"
+                {...serviceForm.register("name", { required: true })}
               />
               <FormHelperText>{errors.name?.message || " "}</FormHelperText>
             </FormControl>
@@ -104,7 +109,7 @@ export default function CreateClient() {
               <Textarea
                 isInvalid={!!errors.description}
                 rows={4}
-                {...register("description")}
+                {...serviceForm.register("description")}
                 placeholder="Description"
               />
               <FormHelperText>
@@ -118,7 +123,8 @@ export default function CreateClient() {
                 isInvalid={!!errors.email}
                 errorBorderColor="red.300"
                 type="email"
-                {...register("email", { required: true })}
+                placeholder="Email"
+                {...serviceForm.register("email", { required: true })}
               />
               <FormHelperText>{errors.email?.message || " "}</FormHelperText>
             </FormControl>
@@ -142,36 +148,41 @@ export default function CreateClient() {
                   colorScheme="blue"
                   isDisabled={!emailForm.formState.isValid}
                   variant="outline"
+                  type="button"
                   onClick={() => {
-                    setValue(
+                    serviceForm.setValue(
                       "otherEmails",
-                      watch("otherEmails").concat(emailForm.watch("email"))
+                      serviceForm
+                        .watch("otherEmails")
+                        .concat(emailForm.watch("email"))
                     );
-                    emailForm.reset();
+                    emailForm.setValue("email", "");
                   }}
                 >
                   Add
                 </Button>
-                {watch("otherEmails").map((email, i) => (
-                  <>
+
+                {serviceForm.watch("otherEmails").map((email, i) => (
+                  <Fragment key={email}>
                     <Text className="col-span-10 pl-4">{email}</Text>
                     <Button
                       className="col-span-2"
                       colorScheme="red"
                       variant="outline"
                       onClick={() => {
-                        setValue(
+                        serviceForm.setValue(
                           "otherEmails",
-                          watch("otherEmails").filter((_, j) => j !== i)
+                          serviceForm
+                            .watch("otherEmails")
+                            .filter((_, j) => j !== i)
                         );
                       }}
                     >
                       Remove
                     </Button>
-                  </>
+                  </Fragment>
                 ))}
               </Box>
-              <Box></Box>
             </FormControl>
 
             <Button w="full" type="submit">

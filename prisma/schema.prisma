@@ -41,19 +41,32 @@ model User {
   phone    String @unique
   name     String /// @zod.max(50)
 
-  services      Service[]      @relation(name: "UserService")
-  ownedServices Service[]      @relation(name: "ServiceOwner")
+  services      Service[]            @relation(name: "UserService")
+  ownedServices Service[]            @relation(name: "ServiceOwner")
   subscriptions Subscription[]
+  emailInvites  ServiceUserInvites[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 }
 
-// TODO: split out Service.Users into another table: ServiceUserInvites
-// to prevent users from being added to a service without their consent
-
 // TODO: allow email invites to manage a service
 // TODO: setup an email provider to send invites to users if they don't have an account
+
+model ServiceUserInvites {
+  id Int @id @default(autoincrement())
+
+  email    String
+
+  serviceId Int
+  userId    Int?
+
+  service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  user    User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+}
 
 model Service {
   id          Int     @id @default(autoincrement())
@@ -63,9 +76,10 @@ model Service {
 
   ownerId Int
 
-  owner User   @relation(name: "ServiceOwner", fields: [ownerId], references: [id])
-  users User[] @relation(name: "UserService")
-  plans Plan[]
+  owner        User                 @relation(name: "ServiceOwner", fields: [ownerId], references: [id])
+  users        User[]               @relation(name: "UserService")
+  plans        Plan[]
+  emailInvites ServiceUserInvites[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt

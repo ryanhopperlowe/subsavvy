@@ -11,7 +11,10 @@ export const serviceCreateSchema = serviceSchema
     id: true,
     ownerId: true,
   })
-  .extend({ users: z.array(z.number()) });
+  .extend({
+    users: z.array(z.number()),
+    emailInvites: z.array(z.string().email()),
+  });
 
 export type Service = z.infer<typeof serviceSchema>;
 export type ServiceCreate = z.infer<typeof serviceCreateSchema>;
