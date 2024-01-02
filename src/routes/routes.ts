@@ -11,7 +11,7 @@ class Route<TQuery extends Params = {}, TPath extends Params = {}> {
   constructor(public readonly _path: string) {}
 
   createRoute<TQ extends TQuery = TQuery, TP extends TPath = TPath>(
-    path: string
+    path: string,
   ) {
     if (this._path === "/") return new Route<TQ, TP>(path);
 
@@ -26,7 +26,7 @@ class Route<TQuery extends Params = {}, TPath extends Params = {}> {
       (acc, key) => {
         return acc.replace(`:${key}`, params[key].toString());
       },
-      `${this._path}${qs && "?"}${qs}`
+      `${this._path}${qs && "?"}${qs}`,
     );
   }
 
@@ -46,7 +46,10 @@ const updateProfile = user.createRoute("/update");
 
 const services = home.createRoute("/services");
 const serviceView = services.createRoute<{}, { id: string }>("/:id");
-const createClient = services.createRoute("/create");
+const createService = services.createRoute("/create");
+
+const plans = serviceView.createRoute("/plans");
+const createPlan = plans.createRoute("/create");
 
 const api = new Route("/api");
 
@@ -56,8 +59,10 @@ const login = auth.createRoute("/signin");
 
 export const Routes = {
   serviceList: services,
-  createClient,
+  planList: plans,
+  createService,
   serviceView,
+  createPlan,
   home,
   login,
   updateProfile,
