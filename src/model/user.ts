@@ -1,15 +1,11 @@
-import { UserModel } from "$/models";
 import { z } from "zod";
 
+import { UserModel } from "$/models";
+import { getCreateSchema, getUpdateSchema } from "./shared";
+
 export const userSchema = UserModel;
-export const userUpdateSchema = userSchema.omit({
-  createdAt: true,
-  updatedAt: true,
-  email: true,
-});
-export const userCreateSchema = userUpdateSchema.omit({
-  id: true,
-});
+export const userUpdateSchema = getUpdateSchema(userSchema);
+export const userCreateSchema = getCreateSchema(userSchema);
 
 export type User = z.infer<typeof userSchema>;
 export type UserCreate = z.infer<typeof userCreateSchema>;
