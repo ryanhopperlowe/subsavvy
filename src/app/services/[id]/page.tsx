@@ -1,6 +1,7 @@
 "use client";
+import { LoadingSpinner } from "@/components";
 import { trpc } from "@/lib";
-import { Container } from "@chakra-ui/react";
+import { Box, Button, Container, Text } from "@chakra-ui/react";
 
 export default function ServicePage({
   params: { id },
@@ -9,10 +10,28 @@ export default function ServicePage({
 }) {
   const getClient = trpc.services.getById.useQuery(Number(id));
 
+  if (getClient.isLoading) {
+    return (
+      <Container>
+        <LoadingSpinner />
+      </Container>
+    );
+  }
+
+  if (getClient.error) {
+    return <Container>{getClient.error.message}</Container>;
+  }
+
+  const service = getClient.data!;
+
   return (
     <Container>
-      <h1>ServicePage</h1>
-      <pre>{JSON.stringify(getClient.data, null, 2)}</pre>
+      <Text fontSize="large">{service.name}</Text>
+      <Box>
+        <Button variant="outline" colorScheme="prim">
+          Add a Plan
+        </Button>
+      </Box>
     </Container>
   );
 }

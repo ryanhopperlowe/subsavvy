@@ -1,6 +1,8 @@
+"use client";
+
 import { AppServiceProvider } from "@/lib";
 import { CacheProvider } from "@chakra-ui/next-js";
-import { ChakraProvider, extendTheme } from "@chakra-ui/react";
+import { ChakraProvider } from "@chakra-ui/react";
 import { ReactNode } from "react";
 import { AuthProvider } from "./AuthProvider";
 import { theme } from "@/styles";

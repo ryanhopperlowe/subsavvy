@@ -1,15 +1,18 @@
+"use client";
+
 import { useAuth } from "@/hooks";
 import { Routes } from "@/routes";
 import { useRouter } from "next/navigation";
+import { LoadingSpinner } from "@/components";
 
-export const AuthLayout = ({ children }: { children: React.ReactNode }) => {
+export function AuthLayout({ children }: { children: React.ReactNode }) {
   const { oauthUser: user, loading } = useAuth();
   const router = useRouter();
 
   if (loading) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-between p-24">
-        <p>Loading...</p>
+        <LoadingSpinner />
       </main>
     );
   }
@@ -19,4 +22,4 @@ export const AuthLayout = ({ children }: { children: React.ReactNode }) => {
   }
 
   return <>{children}</>;
-};
+}

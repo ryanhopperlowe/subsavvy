@@ -22,6 +22,7 @@ import { trpc } from "@/lib";
 import { useRouter } from "next/navigation";
 import { Routes } from "@/routes";
 import { Fragment, useEffect } from "react";
+import { LoadingSpinner } from "@/components";
 
 const schema = z.object({
   name: z.string().min(4, "Name must be at least 4 characters"),
@@ -80,9 +81,7 @@ export default function CreateClient() {
   return (
     <Container className="flex flex-col gap-4 align-middle p-4 h-full">
       {createClient.isLoading ? (
-        <Box className="h-full w-full flex justify-center">
-          <Spinner />
-        </Box>
+        <LoadingSpinner />
       ) : (
         <>
           <Heading size="lg" className="text-center">

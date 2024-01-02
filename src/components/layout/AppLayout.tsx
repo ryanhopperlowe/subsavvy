@@ -1,8 +1,8 @@
-import { AppNav } from "@/components/client";
-import { AuthLayout } from "./AuthLayout";
+"use client";
 import { Box } from "@chakra-ui/react";
+import { AppNav, AuthLayout } from "@/components";
 
-export const AppLayout = ({ children }: { children: React.ReactNode }) => {
+export function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <AuthLayout>
       <AppNav />
@@ -11,4 +11,4 @@ export const AppLayout = ({ children }: { children: React.ReactNode }) => {
       </Box>
     </AuthLayout>
   );
-};
+}

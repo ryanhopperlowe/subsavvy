@@ -1,3 +1,2 @@
-"use client";
-
 export * from "./AppLayout";
+export * from "./AuthLayout";
