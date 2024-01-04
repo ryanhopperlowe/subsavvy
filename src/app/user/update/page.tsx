@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import InputMask from "react-input-mask";
+import { PatternFormat } from "react-number-format";
 import { z } from "zod";
 
 import { useAuth } from "@/hooks";
@@ -34,7 +34,7 @@ export default function UpdateUserPage() {
   });
   const updateProfile = trpc.users.update.useMutation();
 
-  const { register, handleSubmit, formState } = useForm({
+  const { watch, register, handleSubmit, formState } = useForm({
     defaultValues: async () => {
       const profile =
         (await getProfile.refetch()).data ||
@@ -61,10 +61,7 @@ export default function UpdateUserPage() {
       return;
     }
 
-    createProfile.mutate({
-      ...data,
-      email: user.email,
-    });
+    createProfile.mutate(data);
   });
 
   return (
@@ -91,11 +88,12 @@ export default function UpdateUserPage() {
         <FormControl id="phone">
           <FormLabel>Phone Number</FormLabel>
           <Input
-            // @ts-ignore
-            as={InputMask}
+            as={PatternFormat}
             type="tel"
             placeholder="(123) 456-7890"
-            mask="(999) 999-9999"
+            pattern="(###) ###-####"
+            allowEmptyFormatting
+            mask="_"
             {...register("phone", { required: true })}
           />
           <FormHelperText>{formState.errors.phone?.type}</FormHelperText>
