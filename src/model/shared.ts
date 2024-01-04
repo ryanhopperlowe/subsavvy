@@ -17,8 +17,11 @@ export const getUpdateSchema = <
 >(
   model: ZodObject<T>,
 ) => {
-  return model.omit({
-    createdAt: true,
-    updatedAt: true,
-  });
+  return model
+    .omit({
+      createdAt: true,
+      updatedAt: true,
+    })
+    .partial()
+    .required({ id: true });
 };

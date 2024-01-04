@@ -1,28 +1,27 @@
 "use client";
 
 import {
-  Input,
-  Text,
-  FormControl,
-  FormLabel,
-  FormHelperText,
-  Container,
-  Textarea,
-  Button,
-  Heading,
-  Spinner,
   Box,
+  Button,
+  FormControl,
+  FormHelperText,
+  FormLabel,
+  Heading,
+  Input,
+  Spinner,
+  Text,
+  Textarea,
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
+import { Fragment, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { LoadingSpinner } from "@/components";
 import { useAuth } from "@/hooks";
 import { trpc } from "@/lib";
-import { useRouter } from "next/navigation";
 import { Routes } from "@/routes";
-import { Fragment, useEffect } from "react";
-import { LoadingSpinner } from "@/components";
 
 const schema = z.object({
   name: z.string().min(4, "Name must be at least 4 characters"),
@@ -52,7 +51,7 @@ export default function CreateClient() {
   const emailForm = useForm({
     defaultValues: { email: "" },
     resolver: zodResolver(
-      z.object({ email: z.string().email("Invalid email address") })
+      z.object({ email: z.string().email("Invalid email address") }),
     ),
   });
 
@@ -74,12 +73,12 @@ export default function CreateClient() {
         users: [profile.id],
         emailInvites: otherEmails,
       });
-    }
+    },
   );
   const { errors } = serviceForm.formState;
 
   return (
-    <Container className="flex flex-col gap-4 align-middle p-4 h-full">
+    <Box className="flex flex-col gap-4 align-middle p-4 h-full">
       {createClient.isLoading ? (
         <LoadingSpinner />
       ) : (
@@ -153,7 +152,7 @@ export default function CreateClient() {
                       "otherEmails",
                       serviceForm
                         .watch("otherEmails")
-                        .concat(emailForm.watch("email"))
+                        .concat(emailForm.watch("email")),
                     );
                     emailForm.setValue("email", "");
                   }}
@@ -173,7 +172,7 @@ export default function CreateClient() {
                           "otherEmails",
                           serviceForm
                             .watch("otherEmails")
-                            .filter((_, j) => j !== i)
+                            .filter((_, j) => j !== i),
                         );
                       }}
                     >
@@ -190,6 +189,6 @@ export default function CreateClient() {
           </form>
         </>
       )}
-    </Container>
+    </Box>
   );
 }

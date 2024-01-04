@@ -1,6 +1,6 @@
 "use client";
 
-import { Box, Button, Container, Text } from "@chakra-ui/react";
+import { Box, Button, Text } from "@chakra-ui/react";
 import { useRouter } from "next/navigation";
 
 import { LoadingSpinner } from "@/components";
@@ -12,21 +12,17 @@ export function ServiceViewPage({ id }: { id: string }) {
   const router = useRouter();
 
   if (getClient.isLoading) {
-    return (
-      <Container>
-        <LoadingSpinner />
-      </Container>
-    );
+    return <LoadingSpinner />;
   }
 
   if (getClient.error) {
-    return <Container>{getClient.error.message}</Container>;
+    return getClient.error.message;
   }
 
   const service = getClient.data!;
 
   return (
-    <Container>
+    <Box>
       <Text fontSize="large">{service.name}</Text>
       <Box>
         <Button
@@ -37,6 +33,6 @@ export function ServiceViewPage({ id }: { id: string }) {
           Add a Plan
         </Button>
       </Box>
-    </Container>
+    </Box>
   );
 }
