@@ -1,12 +1,14 @@
 import { z } from "zod";
+
+import { serviceCreateSchema } from "@/model";
+import { notFound, unauthorized } from "@/server";
+
 import {
   authedProcedure,
   authorizedProcedure,
   publicProcedure,
   router,
 } from "../trpc";
-import { serviceCreateSchema } from "@/model";
-import { notFound, unauthorized } from "@/server";
 
 export const serviceRouter = router({
   getAll: publicProcedure.query(({ ctx }) => ctx.dbs.services.getAll()),

@@ -1,9 +1,12 @@
-import { trpc } from "@/lib";
-import { Routes } from "@/routes";
+"use client";
+
 import { User } from "@prisma/client";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
+
+import { trpc } from "@/lib";
+import { Routes } from "@/routes";
 
 type OAuthUser = NonNullable<
   NonNullable<ReturnType<typeof useSession>["data"]>["user"]
@@ -43,7 +46,7 @@ export function useAuth<T extends boolean | undefined>({
       return;
 
     router.replace(Routes.updateProfile.path());
-  }, [getProfile.data, getProfile.isLoading, pathname]);
+  }, [getProfile.data, getProfile.isLoading, pathname, router]);
 
   useEffect(() => {
     if (required && !loggedIn) {

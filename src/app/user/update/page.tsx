@@ -3,19 +3,20 @@
 import {
   Button,
   FormControl,
-  FormHelperText,
   FormLabel,
   Heading,
   Input,
   Stack,
 } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import { PatternFormat } from "react-number-format";
 import { z } from "zod";
 
+import { RhfInput, RhfPhoneInput } from "@/components";
 import { useAuth } from "@/hooks";
 import { trpc } from "@/lib";
+import { Routes } from "@/routes";
 
 const resolver = zodResolver(
   z.object({
@@ -27,24 +28,17 @@ const resolver = zodResolver(
 
 export default function UpdateUserPage() {
   const { oauthUser: user } = useAuth({ required: true });
+  const router = useRouter();
 
   const createProfile = trpc.users.create.useMutation();
-  const getProfile = trpc.users.getAuthed.useQuery(undefined, {
-    enabled: false,
-  });
+  const getProfile = trpc.users.getAuthed.useQuery();
   const updateProfile = trpc.users.update.useMutation();
 
-  const { watch, register, handleSubmit, formState } = useForm({
-    defaultValues: async () => {
-      const profile =
-        (await getProfile.refetch()).data ||
-        ({} as Partial<NonNullable<typeof getProfile.data>>);
-
-      return {
-        username: profile.username || "",
-        name: profile.name || "",
-        phone: profile.phone || "",
-      };
+  const { handleSubmit, formState, control } = useForm({
+    defaultValues: {
+      username: getProfile.data?.username || "",
+      name: getProfile.data?.name || "",
+      phone: getProfile.data?.phone || "",
     },
     resetOptions: {
       keepValues: false,
@@ -52,16 +46,17 @@ export default function UpdateUserPage() {
     resolver,
   });
 
-  const onSubmit = handleSubmit((data) => {
+  const onSubmit = handleSubmit(async (data) => {
     if (getProfile.data?.id) {
-      updateProfile.mutate({
+      await updateProfile.mutateAsync({
         id: getProfile.data.id,
         ...data,
       });
-      return;
+    } else {
+      await createProfile.mutateAsync(data);
     }
 
-    createProfile.mutate(data);
+    router.push(Routes.home.path());
   });
 
   return (
@@ -75,29 +70,13 @@ export default function UpdateUserPage() {
           <FormLabel>Email address</FormLabel>
           <Input type="email" disabled value={user.email} />
         </FormControl>
-        <FormControl id="username">
-          <FormLabel>Username</FormLabel>
-          <Input type="text" {...register("username", { required: true })} />
-          <FormHelperText>{formState.errors.username?.message}</FormHelperText>
-        </FormControl>
-        <FormControl id="name">
-          <FormLabel>Name</FormLabel>
-          <Input placeholder="John Doe" {...register("name")} />
-          <FormHelperText>{formState.errors.name?.type}</FormHelperText>
-        </FormControl>
-        <FormControl id="phone">
-          <FormLabel>Phone Number</FormLabel>
-          <Input
-            as={PatternFormat}
-            type="tel"
-            placeholder="(123) 456-7890"
-            pattern="(###) ###-####"
-            allowEmptyFormatting
-            mask="_"
-            {...register("phone", { required: true })}
-          />
-          <FormHelperText>{formState.errors.phone?.type}</FormHelperText>
-        </FormControl>
+
+        <RhfInput label="Username" control={control} name="username" />
+
+        <RhfInput label="Name" control={control} name="name" />
+
+        <RhfPhoneInput label="Phone Number" control={control} name="phone" />
+
         <Button disabled={formState.isValid} type="submit">
           Submit
         </Button>

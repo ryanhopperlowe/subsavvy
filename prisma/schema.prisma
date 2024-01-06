@@ -116,7 +116,7 @@ model BillOption {
 
   planId Int
 
-  plan          Plan           @relation(fields: [planId], references: [id])
+  plan          Plan           @relation(fields: [planId], references: [id], onDelete: Cascade)
   subscriptions Subscription[]
 
   createdAt DateTime @default(now())

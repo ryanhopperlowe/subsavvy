@@ -1,9 +1,9 @@
-import { authorizedProcedure, router } from "..";
-
 import { planCreateSchema } from "@/model";
 import { unauthorized } from "@/server";
 
-export const serviceRouter = router({
+import { authorizedProcedure, router } from "../trpc";
+
+export const planRouter = router({
   create: authorizedProcedure
     .input(planCreateSchema)
     .mutation(async ({ ctx, input }) => {

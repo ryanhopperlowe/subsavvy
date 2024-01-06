@@ -5,26 +5,31 @@ import { BillOptionModel, PlanModel } from "$/models";
 import { getCreateSchema, getUpdateSchema } from "./shared";
 
 export type BillFrequency = PrismaBillFrequency;
-const PlanInterval = PrismaBillFrequency;
+export const BillFrequency = PrismaBillFrequency;
 
 const PLAN_INTERVAL_VALUES = [
-  PlanInterval.WEEKLY,
-  PlanInterval.BIWEEKLY,
-  PlanInterval.MONTHLY,
-  PlanInterval.YEARLY,
+  BillFrequency.WEEKLY,
+  BillFrequency.BIWEEKLY,
+  BillFrequency.MONTHLY,
+  BillFrequency.YEARLY,
 ] as const;
 
 const billOptionSchema = BillOptionModel;
+const billOptionCreateSchema = getCreateSchema(billOptionSchema);
+const billOptionUpdateSchema = getUpdateSchema(billOptionSchema).omit({
+  planId: true,
+});
+
 const planSchema = PlanModel;
 
 const planIntervalCreateSchema = getCreateSchema(billOptionSchema);
 
 export const planCreateSchema = getCreateSchema(planSchema).extend({
-  interval: billOptionSchema.shape.interval,
+  billOptions: billOptionCreateSchema.omit({ planId: true }).array(),
 });
 
 export const planUpdateSchema = getUpdateSchema(planSchema).extend({
-  interval: billOptionSchema.shape.interval.optional(),
+  billOptions: billOptionUpdateSchema.array().optional(),
 });
 
 export type Plan = z.infer<typeof planSchema>;

@@ -1,5 +1,6 @@
-import { initTRPC } from "@trpc/server";
 import { getAuthentication, prisma, unauthorized } from "..";
+import { initTRPC } from "@trpc/server";
+
 import { AppService } from "../service";
 
 export const createContext = async () => {
