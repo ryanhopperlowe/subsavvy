@@ -1,8 +1,8 @@
+import { Service as PrismaService } from "@prisma/client";
 import { z } from "zod";
 
 import { ServiceModel } from "$/models";
-import { planCreateSchema } from "./plan";
-import { getCreateSchema } from "./shared";
+import { Serialized, getCreateSchema } from "./shared";
 
 const serviceSchema = ServiceModel;
 
@@ -13,5 +13,5 @@ export const serviceCreateSchema = getCreateSchema(serviceSchema)
     emailInvites: z.array(z.string().email()),
   });
 
-export type Service = z.infer<typeof serviceSchema>;
+export type Service = Serialized<PrismaService>;
 export type ServiceCreate = z.infer<typeof serviceCreateSchema>;

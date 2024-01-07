@@ -11,4 +11,11 @@ export class PlanService extends RootService {
       },
     });
   }
+
+  getByServiceId(serviceId: number) {
+    return this.db.plan.findMany({
+      where: { serviceId },
+      include: { billOptions: true },
+    });
+  }
 }

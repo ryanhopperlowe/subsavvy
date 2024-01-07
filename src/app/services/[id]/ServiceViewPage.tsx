@@ -7,9 +7,12 @@ import { LoadingSpinner } from "@/components";
 import { trpc } from "@/lib";
 import { Routes } from "@/routes";
 
+import { ServicePlans } from "./ServicePlans";
+
 export function ServiceViewPage({ id }: { id: string }) {
-  const getClient = trpc.services.getById.useQuery(Number(id));
   const router = useRouter();
+
+  const getClient = trpc.services.getById.useQuery(Number(id));
 
   if (getClient.isLoading) {
     return <LoadingSpinner />;
@@ -33,6 +36,8 @@ export function ServiceViewPage({ id }: { id: string }) {
           Add a Plan
         </Button>
       </Box>
+
+      <ServicePlans service={service} />
     </Box>
   );
 }

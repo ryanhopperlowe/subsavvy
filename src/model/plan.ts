@@ -14,13 +14,20 @@ const BillFrequencyValues = [
   BillFrequency.YEARLY,
 ] as const;
 
-export const BillFrequencyOptions = [
-  { value: BillFrequency.ONE_TIME, label: "One Time" },
-  { value: BillFrequency.WEEKLY, label: "Weekly" },
-  { value: BillFrequency.BIWEEKLY, label: "Biweekly" },
-  { value: BillFrequency.MONTHLY, label: "Monthly" },
-  { value: BillFrequency.YEARLY, label: "Yearly" },
-];
+export const BillFrequencyLabels = {
+  [BillFrequency.ONE_TIME]: "One Time",
+  [BillFrequency.WEEKLY]: "Weekly",
+  [BillFrequency.BIWEEKLY]: "Biweekly",
+  [BillFrequency.MONTHLY]: "Monthly",
+  [BillFrequency.YEARLY]: "Yearly",
+} as const;
+
+export const BillFrequencyOptions = Object.values(BillFrequency).map(
+  (value) => ({
+    value,
+    label: BillFrequencyLabels[value],
+  }),
+);
 
 const billOptionSchema = BillOptionModel;
 const billOptionCreateSchema = getCreateSchema(billOptionSchema);

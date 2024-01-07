@@ -25,3 +25,13 @@ export const getUpdateSchema = <
     .partial()
     .required({ id: true });
 };
+
+type ReplaceNestedType<Type, TFind, TReplace> = {
+  [Key in keyof Type]: Type[Key] extends TFind
+    ? TReplace
+    : Type[Key] extends object
+    ? ReplaceNestedType<Type[Key], TFind, TReplace>
+    : Type[Key];
+};
+
+export type Serialized<T> = ReplaceNestedType<T, Date, string>;

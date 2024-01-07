@@ -12,7 +12,7 @@ export type DateFormat = (typeof DateFormat)[keyof typeof DateFormat];
 
 export function formatDate(
   date: Date | string | number,
-  dateFormat: DateFormat = DateFormat.Short
+  dateFormat: DateFormat = DateFormat.Short,
 ): string {
   const d = new Date(date);
   return format(d, dateFormat);

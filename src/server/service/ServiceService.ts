@@ -1,6 +1,8 @@
-import { ServiceCreate } from "@/model";
-import { RootService } from "./RootService";
 import { Session } from "next-auth";
+
+import { ServiceCreate } from "@/model";
+
+import { RootService } from "./RootService";
 
 export class ServiceService extends RootService {
   async getAll() {
@@ -28,7 +30,6 @@ export class ServiceService extends RootService {
   async getById(serviceId: number) {
     return this.db.service.findUnique({
       where: { id: serviceId },
-      include: { plans: true },
     });
   }
 

@@ -64,11 +64,11 @@ var extras = {
     },
   },
   error: {
-    bg: theme.colors.error,
-    content: theme.colors.white,
+    bg: theme.colors.error[500],
+    content: theme.colors.error[100],
     bold: {
-      bg: theme.colors.error,
-      content: theme.colors.white,
+      bg: theme.colors.error[500],
+      content: theme.colors.error[100],
     },
   },
 };
