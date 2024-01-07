@@ -28,7 +28,17 @@ var theme = {
       100: "#00474f",
     },
     success: "#00FF00",
-    error: "#FF0000",
+    error: {
+      900: "#fff1f0",
+      800: "#ffccc7",
+      700: "#ffa39e",
+      600: "#ff7875",
+      500: "#ff4d4f",
+      400: "#f5222d",
+      300: "#cf1322",
+      200: "#a8071a",
+      100: "#820014",
+    },
     warning: "#FFFF00",
     info: "#00FFFF",
   },
@@ -53,6 +63,14 @@ var extras = {
       content: theme.colors.second[900],
     },
   },
+  error: {
+    bg: theme.colors.error,
+    content: theme.colors.white,
+    bold: {
+      bg: theme.colors.error,
+      content: theme.colors.white,
+    },
+  },
 };
 
 theme.colors.prim = {
@@ -63,6 +81,11 @@ theme.colors.prim = {
 theme.colors.second = {
   ...theme.colors.second,
   ...extras.second,
+};
+
+theme.colors.error = {
+  ...theme.colors.error,
+  ...extras.error,
 };
 
 export default extendTheme(theme);

@@ -9,6 +9,7 @@ import {
 import { Controller } from "react-hook-form";
 import { PatternFormat } from "react-number-format";
 
+import { InputBase } from "./InputBase";
 import { Fields, RHFInputProps } from "./helpers";
 
 type RhfPhoneInputProps<TFields extends Fields> = RHFInputProps<TFields>;
@@ -16,23 +17,29 @@ type RhfPhoneInputProps<TFields extends Fields> = RHFInputProps<TFields>;
 export function RhfPhoneInput<TFields extends Fields>(
   props: RhfPhoneInputProps<TFields>,
 ) {
+  const { label, name, control, classes, ...inputProps } = props;
+
   return (
     <Controller
-      name={props.name}
-      control={props.control}
+      name={name}
+      control={control}
       render={({ field: { ref: _, onChange, ...field }, fieldState }) => (
-        <FormControl>
-          {props.label && <FormLabel>{props.label}</FormLabel>}
+        <InputBase
+          label={label}
+          classes={classes}
+          error={fieldState.error?.message}
+        >
           <PatternFormat
             customInput={Input}
             {...field}
+            {...inputProps}
+            className={classes?.input}
             format="(###) ###-####"
             mask="_"
             allowEmptyFormatting
             onValueChange={({ value }) => onChange(value)}
           />
-          <FormHelperText>{fieldState.error?.message || " "}</FormHelperText>
-        </FormControl>
+        </InputBase>
       )}
     />
   );

@@ -8,6 +8,7 @@ import {
 } from "@chakra-ui/react";
 import { Controller } from "react-hook-form";
 
+import { InputBase } from "./InputBase";
 import { Fields, RHFInputProps } from "./helpers";
 
 type RhfInputProps<TFields extends Fields> = RHFInputProps<
@@ -16,20 +17,20 @@ type RhfInputProps<TFields extends Fields> = RHFInputProps<
 >;
 
 export function RhfInput<T extends Fields>(props: RhfInputProps<T>) {
-  const { label, name, control, ...inputProps } = props;
+  const { label, name, control, classes, ...inputProps } = props;
 
   return (
     <Controller
       name={name}
       control={control}
       render={({ field, fieldState }) => (
-        <FormControl>
-          {label && <FormLabel>{label}</FormLabel>}
-          <Input {...field} {...inputProps} />
-          <FormHelperText color="red">
-            {fieldState.error?.message || "  "}
-          </FormHelperText>
-        </FormControl>
+        <InputBase
+          label={label}
+          error={fieldState.error?.message}
+          classes={classes}
+        >
+          <Input {...field} {...inputProps} className={classes?.input} />
+        </InputBase>
       )}
     />
   );

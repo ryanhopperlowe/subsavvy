@@ -7,12 +7,19 @@ import { getCreateSchema, getUpdateSchema } from "./shared";
 export type BillFrequency = PrismaBillFrequency;
 export const BillFrequency = PrismaBillFrequency;
 
-const PLAN_INTERVAL_VALUES = [
+const BillFrequencyValues = [
   BillFrequency.WEEKLY,
   BillFrequency.BIWEEKLY,
   BillFrequency.MONTHLY,
   BillFrequency.YEARLY,
 ] as const;
+
+export const BillFrequencyOptions = [
+  { value: BillFrequency.WEEKLY, label: "Weekly" },
+  { value: BillFrequency.BIWEEKLY, label: "Biweekly" },
+  { value: BillFrequency.MONTHLY, label: "Monthly" },
+  { value: BillFrequency.YEARLY, label: "Yearly" },
+];
 
 const billOptionSchema = BillOptionModel;
 const billOptionCreateSchema = getCreateSchema(billOptionSchema);

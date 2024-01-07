@@ -1,11 +1,15 @@
 "use client";
 
-import { Stack } from "@chakra-ui/react";
+import { Box, Button, Flex, FormLabel, Grid, Stack } from "@chakra-ui/react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Fragment, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { v4 as uuid } from "uuid";
 
-import { RhfInput, RhfTextArea } from "@/components";
+import { RhfCurrencyInput, RhfInput, RhfTextArea } from "@/components";
+import { RhfSelect } from "@/components/form/RhfSelect";
 import { trpc } from "@/lib";
-import { BillFrequency, planCreateSchema } from "@/model";
+import { BillFrequency, BillFrequencyOptions, planCreateSchema } from "@/model";
 
 const schema = planCreateSchema;
 
@@ -13,6 +17,7 @@ type Fields = {
   name: string;
   description: string;
   billOptions: {
+    key: string;
     price: string | null;
     interval: BillFrequency | null;
   }[];
@@ -25,8 +30,11 @@ export function PlanCreatePage({ serviceId }: { serviceId: string }) {
     defaultValues: {
       name: "",
       description: "",
-      billOptions: [{ price: null, interval: null }],
+      billOptions: [
+        { price: null, interval: BillFrequency.MONTHLY, key: uuid() },
+      ],
     },
+    resolver: zodResolver(schema),
   });
 
   const handleSubmit = form.handleSubmit(async (data) => {
@@ -45,6 +53,8 @@ export function PlanCreatePage({ serviceId }: { serviceId: string }) {
     });
   });
 
+  const billOptions = form.watch("billOptions");
+
   return (
     <form onSubmit={handleSubmit}>
       <Stack spacing={4}>
@@ -60,6 +70,68 @@ export function PlanCreatePage({ serviceId }: { serviceId: string }) {
           name="description"
           label="Description"
         />
+
+        <FormLabel>Billing options:</FormLabel>
+        <Box className="grid grid-cols-8 gap-2 items-start">
+          <FormLabel className="col-span-3">Price</FormLabel>
+          <FormLabel className="col-span-3">Interval</FormLabel>
+          <FormLabel className="col-span-2">Actions</FormLabel>
+
+          {billOptions.map((billOption, index) => (
+            <Fragment key={billOption.key}>
+              <RhfCurrencyInput
+                control={form.control}
+                name={`billOptions.${index}.price`}
+                classes={{ root: "col-span-3" }}
+              />
+
+              <RhfSelect
+                control={form.control}
+                name={`billOptions.${index}.interval`}
+                options={BillFrequencyOptions}
+                classes={{ root: "col-span-3" }}
+              />
+
+              <Button
+                onClick={() =>
+                  form.setValue(
+                    "billOptions",
+                    billOptions.filter((_, i) => i !== index),
+                  )
+                }
+                isDisabled={billOptions.length === 1}
+                className="col-span-2"
+                colorScheme="error"
+              >
+                Remove
+              </Button>
+            </Fragment>
+          ))}
+        </Box>
+
+        <Button
+          onClick={() =>
+            form.setValue("billOptions", [
+              ...form.watch("billOptions"),
+              {
+                price: null,
+                interval: BillFrequency.MONTHLY,
+                key: uuid(),
+              },
+            ])
+          }
+          className="mb-2"
+        >
+          Add Billing Option
+        </Button>
+
+        <Button
+          type="submit"
+          isLoading={createPlan.isLoading}
+          colorScheme="prim"
+        >
+          Create Plan
+        </Button>
       </Stack>
     </form>
   );

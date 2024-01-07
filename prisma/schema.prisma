@@ -87,8 +87,8 @@ model Service {
 
 model Plan {
   id          Int     @id @default(autoincrement())
-  name        String /// @zod.max(50)
-  description String? /// @zod.max(100)
+  name        String /// @zod.min(4).max(50)
+  description String? /// @zod.min(4).max(100)
 
   serviceId Int
 
@@ -112,7 +112,7 @@ enum BillFrequency {
 model BillOption {
   id       Int           @id @default(autoincrement())
   interval BillFrequency
-  price    Float /// @zod.min(0)
+  price    Float /// @zod.min(0).max(10000)
 
   planId Int
 

@@ -6,6 +6,10 @@ export type RHFInputProps<
   TInputProps extends ComponentType = ComponentType,
 > = ComponentProps<TInputProps> & {
   label?: ReactNode;
+  classes?: {
+    input?: string;
+    root?: string;
+  };
   name: FieldPath<TFields>;
   control: Control<TFields>;
 };
