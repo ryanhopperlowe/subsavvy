@@ -1,7 +1,8 @@
 "use client";
 
-import { Box, Button, Flex, FormLabel, Grid, Stack } from "@chakra-ui/react";
+import { Box, Button, FormLabel, Stack } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { Fragment, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { v4 as uuid } from "uuid";
@@ -10,6 +11,7 @@ import { RhfCurrencyInput, RhfInput, RhfTextArea } from "@/components";
 import { RhfSelect } from "@/components/form/RhfSelect";
 import { trpc } from "@/lib";
 import { BillFrequency, BillFrequencyOptions, planCreateSchema } from "@/model";
+import { Routes } from "@/routes";
 
 const schema = planCreateSchema;
 
@@ -21,10 +23,15 @@ type Fields = {
     price: string | null;
     interval: BillFrequency | null;
   }[];
+  serviceId: number;
 };
 
 export function PlanCreatePage({ serviceId }: { serviceId: string }) {
-  const createPlan = trpc.plans.create.useMutation();
+  const router = useRouter();
+
+  const createPlan = trpc.plans.create.useMutation({
+    onError: console.error,
+  });
 
   const form = useForm<Fields>({
     defaultValues: {
@@ -33,6 +40,7 @@ export function PlanCreatePage({ serviceId }: { serviceId: string }) {
       billOptions: [
         { price: null, interval: BillFrequency.MONTHLY, key: uuid() },
       ],
+      serviceId: Number(serviceId),
     },
     resolver: zodResolver(schema),
   });
@@ -43,7 +51,7 @@ export function PlanCreatePage({ serviceId }: { serviceId: string }) {
       if (!option.interval) throw new Error("Interval is required");
     });
 
-    createPlan.mutate({
+    await createPlan.mutateAsync({
       ...data,
       serviceId: Number(serviceId),
       billOptions: data.billOptions.map((option) => ({
@@ -51,7 +59,13 @@ export function PlanCreatePage({ serviceId }: { serviceId: string }) {
         price: Number(option.price!),
       })),
     });
+
+    router.push(Routes.serviceView.path({ id: serviceId }));
   });
+
+  useEffect(() => {
+    return form.watch(console.log).unsubscribe;
+  }, []);
 
   const billOptions = form.watch("billOptions");
 
@@ -125,11 +139,7 @@ export function PlanCreatePage({ serviceId }: { serviceId: string }) {
           Add Billing Option
         </Button>
 
-        <Button
-          type="submit"
-          isLoading={createPlan.isLoading}
-          colorScheme="prim"
-        >
+        <Button type="submit" colorScheme="prim">
           Create Plan
         </Button>
       </Stack>

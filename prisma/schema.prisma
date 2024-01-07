@@ -101,6 +101,7 @@ model Plan {
 }
 
 enum BillFrequency {
+  ONE_TIME
   WEEKLY
   BIWEEKLY
   MONTHLY

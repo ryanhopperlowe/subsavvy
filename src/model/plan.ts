@@ -15,6 +15,7 @@ const BillFrequencyValues = [
 ] as const;
 
 export const BillFrequencyOptions = [
+  { value: BillFrequency.ONE_TIME, label: "One Time" },
   { value: BillFrequency.WEEKLY, label: "Weekly" },
   { value: BillFrequency.BIWEEKLY, label: "Biweekly" },
   { value: BillFrequency.MONTHLY, label: "Monthly" },

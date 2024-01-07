@@ -1,5 +1,10 @@
+"use client";
+
+import { useParams } from "next/navigation";
+
 import { PlanCreatePage } from "./PlanCreatePage";
 
-export default function Page({ id }: { id: string }) {
-  return <PlanCreatePage serviceId={id} />;
+export default function Page() {
+  const { id } = useParams();
+  return <PlanCreatePage serviceId={id as string} />;
 }
