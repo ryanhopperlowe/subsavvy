@@ -1,17 +1,13 @@
 "use client";
 
-import { Box, Button, Text } from "@chakra-ui/react";
-import { useRouter } from "next/navigation";
+import { Box, Text } from "@chakra-ui/react";
 
 import { LoadingSpinner } from "@/components";
 import { trpc } from "@/lib";
-import { Routes } from "@/routes";
 
 import { ServicePlans } from "./ServicePlans";
 
 export function ServiceViewPage({ id }: { id: string }) {
-  const router = useRouter();
-
   const getClient = trpc.services.getById.useQuery(Number(id));
 
   if (getClient.isLoading) {
@@ -26,16 +22,7 @@ export function ServiceViewPage({ id }: { id: string }) {
 
   return (
     <Box>
-      <Text fontSize="large">{service.name}</Text>
-      <Box>
-        <Button
-          variant="outline"
-          colorScheme="prim"
-          onClick={() => router.push(Routes.createPlan.path({ id }))}
-        >
-          Add a Plan
-        </Button>
-      </Box>
+      <Text fontSize="x-large">{service.name}</Text>
 
       <ServicePlans service={service} />
     </Box>

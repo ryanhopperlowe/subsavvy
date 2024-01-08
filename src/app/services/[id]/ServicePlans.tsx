@@ -1,10 +1,14 @@
-import { Box, Card, Grid, Stack, Text } from "@chakra-ui/react";
+import { Box, Button, Card, Stack, Text } from "@chakra-ui/react";
+import { useRouter } from "next/navigation";
 
 import { LoadingSpinner } from "@/components";
 import { formatCurrency, trpc } from "@/lib";
 import { BillFrequencyLabels, Service } from "@/model";
+import { Routes } from "@/routes";
 
 export function ServicePlans({ service }: { service: Service }) {
+  const router = useRouter();
+
   const getPlans = trpc.plans.getByServiceId.useQuery(service.id);
 
   if (getPlans.isLoading) {
@@ -18,8 +22,9 @@ export function ServicePlans({ service }: { service: Service }) {
   const plans = getPlans.data!;
 
   return (
-    <Stack spacing={4}>
+    <Stack spacing={2}>
       <Text fontSize="large">Plan Options:</Text>
+
       {plans.map((plan) => (
         <Card key={plan.id} className="p-4" bg="prim.900">
           <Text fontSize="large" color="prim.500">
@@ -32,7 +37,7 @@ export function ServicePlans({ service }: { service: Service }) {
             Bill Options:
           </Text>
 
-          <Box className="grid grid-cols-4 gap-2 content-center text-center">
+          <Box className="grid grid-cols-2 gap-2 content-center text-center md:grid-cols-4">
             {plan.billOptions.map((billOption) => (
               <Card key={billOption.id} className="p-4" color="prim.500">
                 <Text fontSize="medium">
@@ -45,6 +50,15 @@ export function ServicePlans({ service }: { service: Service }) {
           </Box>
         </Card>
       ))}
+
+      <Button
+        colorScheme="prim"
+        onClick={() =>
+          router.push(Routes.createPlan.path({ id: String(service.id) }))
+        }
+      >
+        Add a Plan
+      </Button>
     </Stack>
   );
 }

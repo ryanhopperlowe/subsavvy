@@ -1,9 +1,8 @@
 "use client";
 
-import { Box, Button, FormLabel, Stack } from "@chakra-ui/react";
+import { Box, Button, Card, FormLabel, Stack, Text } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import { Fragment, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { v4 as uuid } from "uuid";
 
@@ -63,85 +62,97 @@ export function PlanCreatePage({ serviceId }: { serviceId: string }) {
     router.push(Routes.serviceView.path({ id: serviceId }));
   });
 
-  useEffect(() => {
-    return form.watch(console.log).unsubscribe;
-  }, []);
-
   const billOptions = form.watch("billOptions");
 
   return (
     <form onSubmit={handleSubmit}>
       <Stack spacing={4}>
-        <RhfInput
-          label="Plan Name"
-          control={form.control}
-          name="name"
-          placeholder="e.x. 'Gold Tier'"
-        />
+        <Text fontSize="x-large">Create a Plan</Text>
 
-        <RhfTextArea
-          control={form.control}
-          name="description"
-          label="Description"
-        />
+        <Card className="p-4">
+          <RhfInput
+            label="Plan Name"
+            control={form.control}
+            name="name"
+            placeholder="e.x. 'Gold Tier'"
+          />
 
-        <FormLabel>Billing options:</FormLabel>
-        <Box className="grid grid-cols-8 gap-2 items-start">
-          <FormLabel className="col-span-3">Price</FormLabel>
-          <FormLabel className="col-span-3">Interval</FormLabel>
-          <FormLabel className="col-span-2">Actions</FormLabel>
+          <RhfTextArea
+            control={form.control}
+            name="description"
+            label="Description"
+          />
+        </Card>
+
+        <Card className="p-4 flex flex-col gap-4">
+          <FormLabel>Billing options:</FormLabel>
 
           {billOptions.map((billOption, index) => (
-            <Fragment key={billOption.key}>
+            <Card
+              key={billOption.key}
+              className="p-4 grid grid-cols-8 gap-2 items-start"
+            >
               <RhfCurrencyInput
+                label={"Price"}
                 control={form.control}
                 name={`billOptions.${index}.price`}
-                classes={{ root: "col-span-3" }}
+                placeholder="e.x. 9.99"
+                classes={{ root: "col-span-8 md:col-span-3" }}
               />
 
               <RhfSelect
+                label="Billing Interval"
                 control={form.control}
                 name={`billOptions.${index}.interval`}
                 options={BillFrequencyOptions}
-                classes={{ root: "col-span-3" }}
+                classes={{ root: "col-span-8 md:col-span-3" }}
               />
 
-              <Button
-                onClick={() =>
-                  form.setValue(
-                    "billOptions",
-                    billOptions.filter((_, i) => i !== index),
-                  )
-                }
-                isDisabled={billOptions.length === 1}
-                className="col-span-2"
-                colorScheme="error"
-              >
-                Remove
-              </Button>
-            </Fragment>
+              <Box className="col-span-8 md:col-span-2">
+                <FormLabel opacity={0}>Actions</FormLabel>
+                <Button
+                  onClick={() =>
+                    form.setValue(
+                      "billOptions",
+                      billOptions.filter((_, i) => i !== index),
+                    )
+                  }
+                  isDisabled={billOptions.length === 1}
+                  colorScheme="error"
+                  className="w-full"
+                >
+                  Remove
+                </Button>
+              </Box>
+            </Card>
           ))}
+
+          <Button
+            onClick={() =>
+              form.setValue("billOptions", [
+                ...form.watch("billOptions"),
+                {
+                  price: null,
+                  interval: BillFrequency.MONTHLY,
+                  key: uuid(),
+                },
+              ])
+            }
+            className="mb-2"
+          >
+            Add Billing Option
+          </Button>
+        </Card>
+
+        <Box className="grid grid-cols-2">
+          <Button onClick={() => router.back()} className="mr-2">
+            Cancel
+          </Button>
+
+          <Button type="submit" colorScheme="prim">
+            Create Plan
+          </Button>
         </Box>
-
-        <Button
-          onClick={() =>
-            form.setValue("billOptions", [
-              ...form.watch("billOptions"),
-              {
-                price: null,
-                interval: BillFrequency.MONTHLY,
-                key: uuid(),
-              },
-            ])
-          }
-          className="mb-2"
-        >
-          Add Billing Option
-        </Button>
-
-        <Button type="submit" colorScheme="prim">
-          Create Plan
-        </Button>
       </Stack>
     </form>
   );

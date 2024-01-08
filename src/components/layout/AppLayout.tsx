@@ -1,17 +1,19 @@
 "use client";
 
-import { Container } from "@chakra-ui/react";
+import { Box, Container } from "@chakra-ui/react";
 
 import { AppNav, AuthLayout } from "@/components";
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <AuthLayout>
-      <AppNav />
+      <Box className="flex flex-col">
+        <AppNav />
 
-      <Container as="main" className="h-full py-2">
-        {children}
-      </Container>
+        <Container as="main" className="h-full py-4 flex-1 overflow-auto">
+          {children}
+        </Container>
+      </Box>
     </AuthLayout>
   );
 }
