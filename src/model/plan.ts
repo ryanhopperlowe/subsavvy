@@ -1,5 +1,6 @@
 import {
   BillFrequency as PrismaBillFrequency,
+  BillOption as PrismaBillOption,
   Plan as PrismaPlan,
 } from "@prisma/client";
 import { z } from "zod";
@@ -50,7 +51,9 @@ export const planUpdateSchema = getUpdateSchema(planSchema).required({
   serviceId: true,
 });
 
-export type Plan = Serialized<PrismaPlan>;
 export type PlanCreate = z.infer<typeof planCreateSchema>;
 export type PlanUpdate = z.infer<typeof planUpdateSchema>;
 export type PlanIntervalCreate = z.infer<typeof planIntervalCreateSchema>;
+
+export type BillOption = Serialized<PrismaBillOption>;
+export type Plan = Serialized<PrismaPlan>;
