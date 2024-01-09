@@ -1,23 +1,43 @@
 "use client";
 
 import { Box, Button, Card, Stack, Text } from "@chakra-ui/react";
+import cn from "classnames";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-import { LoadingSpinner, SsModal } from "@/components";
+import { LoadingSpinner } from "@/components";
 import { formatCurrency, trpc } from "@/lib";
-import { BillFrequencyLabels, Service } from "@/model";
+import { BillFrequencyLabels, Plan } from "@/model";
 import { Routes } from "@/routes";
 
-import { EditPlanForm } from "./EditPlanForm";
+import { EditPlan } from "./EditPlan";
 
-export function ServicePlans({ service }: { service: Service }) {
+export function ServicePlans({ serviceId }: { serviceId: number }) {
   const router = useRouter();
 
-  const getPlans = trpc.plans.getByServiceId.useQuery(service.id);
+  const getPlans = trpc.plans.getByServiceId.useQuery(serviceId);
 
   const [planToEditId, setPlanToEditId] = useState<number | null>(null);
   const onClosePlanModal = () => setPlanToEditId(null);
+
+  const [loadingPlan, setLoadingPlan] = useState<Plan | null>(null);
+
+  useEffect(() => {
+    setLoadingPlan(null);
+  }, [getPlans.data]);
+
+  const plans = useMemo(() => {
+    if (!getPlans.data) return [];
+
+    return getPlans.data.map((plan) =>
+      loadingPlan?.id === plan.id
+        ? {
+            ...plan,
+            ...loadingPlan,
+          }
+        : plan,
+    );
+  }, [getPlans.data, loadingPlan]);
 
   if (getPlans.isLoading) {
     return <LoadingSpinner />;
@@ -27,17 +47,25 @@ export function ServicePlans({ service }: { service: Service }) {
     return getPlans.error.message;
   }
 
-  const plans = getPlans.data!;
-
   return (
     <Stack spacing={2}>
       <Text fontSize="large">Plan Options:</Text>
 
       {plans.map((plan) => (
-        <Card key={plan.id} className="p-4 flex flex-col gap-4" bg="prim.900">
-          <Text fontSize="large" color="prim.500">
-            <b>{plan.name}</b>
-          </Text>
+        <Card
+          key={plan.id}
+          className={cn("p-4 flex flex-col gap-4", {
+            "filter grayscale opacity-60": loadingPlan?.id === plan.id,
+          })}
+          bg="prim.900"
+        >
+          <Box className="w-full flex justify-between align-middle gap-4">
+            <Text fontSize="large" color="prim.500">
+              <b>{plan.name}</b>
+            </Text>
+
+            {loadingPlan?.id === plan.id && <LoadingSpinner inline />}
+          </Box>
 
           <Text fontSize="small">{plan.description}</Text>
 
@@ -48,7 +76,7 @@ export function ServicePlans({ service }: { service: Service }) {
 
             <Box className="grid grid-cols-2 gap-2 content-center text-center md:grid-cols-4">
               {plan.billOptions.map((billOption) => (
-                <Card key={billOption.id} className="p-4" color="prim.500">
+                <Card key={billOption.id} className={"p-4"} color="prim.500">
                   <Text fontSize="medium">
                     <b>{BillFrequencyLabels[billOption.interval]}</b>
                   </Text>
@@ -61,51 +89,18 @@ export function ServicePlans({ service }: { service: Service }) {
             </Box>
           </Box>
 
-          <Button
-            onClick={() => setPlanToEditId(plan.id)}
-            variant="solid"
-            colorScheme="prim"
-          >
-            Edit Plan
-          </Button>
-
-          <SsModal isOpen={planToEditId === plan.id} onClose={onClosePlanModal}>
-            <SsModal.Header>Edit Plan</SsModal.Header>
-
-            <SsModal.Body>
-              <EditPlanForm
-                plan={plan}
-                onSuccess={onClosePlanModal}
-                formId={PLAN_FORM_ID}
-              />
-            </SsModal.Body>
-
-            <SsModal.Footer>
-              <Button
-                colorScheme="prim"
-                variant="ghost"
-                onClick={onClosePlanModal}
-              >
-                Close
-              </Button>
-
-              <Button
-                type="submit"
-                colorScheme="prim"
-                variant="solid"
-                form={PLAN_FORM_ID}
-              >
-                Save
-              </Button>
-            </SsModal.Footer>
-          </SsModal>
+          <EditPlan
+            plan={plan}
+            onSuccess={setLoadingPlan}
+            isDisabled={getPlans.isFetching && loadingPlan?.id === plan.id}
+          />
         </Card>
       ))}
 
       <Button
         colorScheme="prim"
         onClick={() =>
-          router.push(Routes.createPlan.path({ id: String(service.id) }))
+          router.push(Routes.createPlan.path({ id: String(serviceId) }))
         }
       >
         Add a Plan

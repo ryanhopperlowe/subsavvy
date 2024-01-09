@@ -24,7 +24,7 @@ export function ServiceViewPage({ id }: { id: string }) {
     <Box>
       <Text fontSize="x-large">{service.name}</Text>
 
-      <ServicePlans service={service} />
+      <ServicePlans serviceId={service.id} />
     </Box>
   );
 }

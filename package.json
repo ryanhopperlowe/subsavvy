@@ -30,6 +30,7 @@
     "@types/uuid": "^9.0.7",
     "autoprefixer": "10.4.15",
     "chakra-react-select": "^4.7.6",
+    "classnames": "^2.5.1",
     "date-fns": "^2.30.0",
     "eslint": "8.48.0",
     "eslint-config-next": "13.4.19",
