@@ -15,6 +15,13 @@ export function notFound() {
   });
 }
 
+export function badRequest(message: string) {
+  return new TRPCError({
+    code: "BAD_REQUEST",
+    message,
+  });
+}
+
 type FullRequired<T> = {
   [P in keyof T]-?: NonNullable<T[P]>;
 };

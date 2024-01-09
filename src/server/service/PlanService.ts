@@ -1,4 +1,4 @@
-import { PlanCreate } from "@/model";
+import { PlanCreate, PlanUpdate } from "@/model";
 
 import { RootService } from "./RootService";
 
@@ -16,6 +16,13 @@ export class PlanService extends RootService {
     return this.db.plan.findMany({
       where: { serviceId },
       include: { billOptions: true },
+    });
+  }
+
+  update({ id, ...data }: PlanUpdate) {
+    return this.db.plan.update({
+      where: { id },
+      data,
     });
   }
 }

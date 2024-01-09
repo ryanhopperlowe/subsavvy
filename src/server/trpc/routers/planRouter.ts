@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { planCreateSchema } from "@/model";
+import { planCreateSchema, planUpdateSchema } from "@/model";
 import { unauthorized } from "@/server";
 
 import { authorizedProcedure, router } from "../trpc";
@@ -27,5 +27,18 @@ export const planRouter = router({
       if (!canGetPlans) throw unauthorized();
 
       return ctx.dbs.plans.getByServiceId(input);
+    }),
+
+  update: authorizedProcedure
+    .input(planUpdateSchema)
+    .mutation(async ({ ctx, input }) => {
+      const canUpdatePlan = await ctx.dbs.services.canEdit(
+        input.serviceId,
+        ctx.profile.id,
+      );
+
+      if (!canUpdatePlan) throw unauthorized();
+
+      return ctx.dbs.plans.update(input);
     }),
 });
