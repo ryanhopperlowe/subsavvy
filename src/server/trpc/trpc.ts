@@ -33,8 +33,8 @@ export const authorizedProcedure = authedProcedure.use(async (opts) => {
   });
 
   if (process.env.NODE_ENV === "development") {
-    // wait 2 seconds to simulate a slow connection
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    // wait 1 second to simulate a slow connection
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 
   if (!profile) {
