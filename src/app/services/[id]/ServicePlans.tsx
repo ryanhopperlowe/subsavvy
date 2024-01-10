@@ -18,24 +18,29 @@ export function ServicePlans({ serviceId }: { serviceId: Identifier }) {
 
   const getPlans = trpc.plans.getByServiceId.useQuery(serviceId);
 
-  const [loadingPlan, setLoadingPlan] = useState<Plan | null>(null);
+  const [updatedPlan, setUpdatedPlan] = useState<Plan | null>(null);
+  const [deletedPlan, setDeletedPlan] = useState<Plan | null>(null);
+
+  const isPlanLoading = (id: Identifier) =>
+    getPlans.isFetching && [updatedPlan?.id, deletedPlan?.id].includes(id);
 
   useEffect(() => {
-    setLoadingPlan(null);
+    setUpdatedPlan(null);
+    setDeletedPlan(null);
   }, [getPlans.data]);
 
   const plans = useMemo(() => {
     if (!getPlans.data) return [];
 
     return getPlans.data.map((plan) =>
-      loadingPlan?.id === plan.id
+      updatedPlan?.id === plan.id
         ? {
             ...plan,
-            ...loadingPlan,
+            ...updatedPlan,
           }
         : plan,
     );
-  }, [getPlans.data, loadingPlan]);
+  }, [getPlans.data, updatedPlan]);
 
   if (getPlans.isLoading) {
     return <LoadingSpinner />;
@@ -53,7 +58,7 @@ export function ServicePlans({ serviceId }: { serviceId: Identifier }) {
         <Card
           key={plan.id}
           className={cn("p-4 flex flex-col gap-4", {
-            "filter grayscale opacity-60": loadingPlan?.id === plan.id,
+            "filter grayscale opacity-60": deletedPlan?.id === plan.id,
           })}
           bg="prim.900"
         >
@@ -62,7 +67,7 @@ export function ServicePlans({ serviceId }: { serviceId: Identifier }) {
               <b>{plan.name}</b>
             </Text>
 
-            {loadingPlan?.id === plan.id && <LoadingSpinner inline />}
+            {isPlanLoading(plan.id) && <LoadingSpinner inline />}
           </Box>
 
           <Text fontSize="small">{plan.description}</Text>
@@ -90,14 +95,14 @@ export function ServicePlans({ serviceId }: { serviceId: Identifier }) {
           <Box className="w-full flex gap-2">
             <EditPlan
               plan={plan}
-              onSuccess={setLoadingPlan}
-              isDisabled={getPlans.isFetching && loadingPlan?.id === plan.id}
+              onSuccess={setUpdatedPlan}
+              isDisabled={isPlanLoading(plan.id)}
             />
 
             <DeletePlan
               plan={plan}
-              onSuccess={setLoadingPlan}
-              isDisabled={getPlans.isFetching && loadingPlan?.id === plan.id}
+              onSuccess={setDeletedPlan}
+              isDisabled={isPlanLoading(plan.id)}
             />
           </Box>
         </Card>
@@ -114,5 +119,3 @@ export function ServicePlans({ serviceId }: { serviceId: Identifier }) {
     </Stack>
   );
 }
-
-const PLAN_FORM_ID = "planForm";
