@@ -35,7 +35,7 @@ datasource db {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
+  id       String @id @default(cuid()) /// @zod.cuid()
   username String @unique /// @zod.max(22)
   email    String @unique /// @zod.email("Invalid email address")
   phone    String @unique
@@ -54,12 +54,12 @@ model User {
 // TODO: setup an email provider to send invites to users if they don't have an account
 
 model ServiceUserInvites {
-  id Int @id @default(autoincrement())
+  id String @id @default(cuid()) /// @zod.cuid()
 
   email String /// @zod.email()
 
-  serviceId Int
-  userId    Int?
+  serviceId String /// @zod.cuid()
+  userId    String? /// @zod.cuid()
 
   service Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
   user    User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -69,12 +69,12 @@ model ServiceUserInvites {
 }
 
 model Service {
-  id          Int     @id @default(autoincrement())
+  id          String  @id @default(cuid()) /// @zod.cuid()
   name        String
   email       String /// @zod.email()
   description String? /// @zod.max(100)
 
-  ownerId Int
+  ownerId String /// @zod.cuid()
 
   owner        User                 @relation(name: "ServiceOwner", fields: [ownerId], references: [id])
   users        User[]               @relation(name: "UserService")
@@ -86,11 +86,11 @@ model Service {
 }
 
 model Plan {
-  id          Int     @id @default(autoincrement())
+  id          String  @id @default(cuid()) /// @zod.cuid()
   name        String /// @zod.min(4).max(50)
   description String? /// @zod.min(4).max(100)
 
-  serviceId Int
+  serviceId String /// @zod.cuid()
 
   service      Service        @relation(fields: [serviceId], references: [id])
   billOptions  BillOption[]
@@ -101,6 +101,7 @@ model Plan {
 }
 
 enum BillFrequency {
+  NEVER
   ONE_TIME
   WEEKLY
   BIWEEKLY
@@ -111,11 +112,12 @@ enum BillFrequency {
 }
 
 model BillOption {
-  id       Int           @id @default(autoincrement())
+  id       String        @id @default(cuid()) /// @zod.cuid()
   interval BillFrequency
-  price    Float /// @zod.min(0).max(10000)
+  price    Float         @default(0.00) /// @zod.min(0).max(10000)
+  isFree   Boolean       @default(false)
 
-  planId Int
+  planId String /// @zod.cuid()
 
   plan          Plan           @relation(fields: [planId], references: [id], onDelete: Cascade)
   subscriptions Subscription[]
@@ -127,15 +129,15 @@ model BillOption {
 }
 
 model Subscription {
-  id       Int     @id @default(autoincrement())
+  id       String  @id @default(cuid()) /// @zod.cuid()
   price    Float /// @zod.min(0)
   duration Int /// @zod.min(0)
   features String?
 
-  serviceId    Int
-  userId       Int
-  planId       Int
-  billOptionId Int
+  serviceId    String /// @zod.cuid()
+  userId       String /// @zod.cuid()
+  planId       String /// @zod.cuid()
+  billOptionId String /// @zod.cuid()
 
   plan       Plan       @relation(fields: [planId], references: [id])
   billOption BillOption @relation(fields: [billOptionId], references: [id])
@@ -148,12 +150,12 @@ model Subscription {
 }
 
 model AuditLog {
-  id Int @id @default(autoincrement())
+  id String @id @default(cuid()) /// @zod.cuid()
 
-  userId         Int
-  serviceId      Int
-  planId         Int
-  subscriptionId Int
+  userId         String /// @zod.cuid()
+  serviceId      String /// @zod.cuid()
+  planId         String /// @zod.cuid()
+  subscriptionId String /// @zod.cuid()
 
   action    String
   createdAt DateTime @default(now())

@@ -1,6 +1,6 @@
 import { Session } from "next-auth";
 
-import { ServiceCreate } from "@/model";
+import { Identifier, ServiceCreate } from "@/model";
 
 import { RootService } from "./RootService";
 
@@ -27,13 +27,13 @@ export class ServiceService extends RootService {
     });
   }
 
-  async getById(serviceId: number) {
+  async getById(serviceId: Identifier) {
     return this.db.service.findUnique({
       where: { id: serviceId },
     });
   }
 
-  async canEdit(serviceId: number, userId: number) {
+  async canEdit(serviceId: Identifier, userId: Identifier) {
     const service = await this.db.service.findUnique({
       where: { id: serviceId },
       select: { ownerId: true, users: { select: { id: true } } },
@@ -46,7 +46,7 @@ export class ServiceService extends RootService {
     return service.users.some((user) => user.id === userId);
   }
 
-  async canDelete(serviceId: number, userId: number) {
+  async canDelete(serviceId: Identifier, userId: Identifier) {
     const service = await this.db.service.findUnique({
       where: { id: serviceId },
       select: { ownerId: true },
@@ -55,7 +55,7 @@ export class ServiceService extends RootService {
     return service && service.ownerId === userId;
   }
 
-  async canView(serviceId: number, userId: number) {
+  async canView(serviceId: Identifier, userId: Identifier) {
     const service = await this.db.service.findUnique({
       where: { id: serviceId },
       select: { ownerId: true, users: { select: { id: true } } },
@@ -68,11 +68,11 @@ export class ServiceService extends RootService {
     return service.users.some((user) => user.id === userId);
   }
 
-  async deleteService(serviceId: number) {
+  async deleteService(serviceId: Identifier) {
     return this.db.service.delete({ where: { id: serviceId } });
   }
 
-  async inviteByEmail(serviceId: number, emails: string[]) {
+  async inviteByEmail(serviceId: Identifier, emails: string[]) {
     const users = await this.db.user.findMany({
       where: { email: { in: emails } },
     });

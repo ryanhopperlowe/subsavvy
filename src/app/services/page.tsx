@@ -5,26 +5,28 @@ import { useRouter } from "next/navigation";
 
 import { ConfirmModal } from "@/components/shared";
 import { formatDate, trpc } from "@/lib";
+import { Identifier } from "@/model";
 import { Routes } from "@/routes";
 
 export default function ServiceListPage() {
-  const getClients = trpc.services.getAll.useQuery();
-  const deleteClient = trpc.services.delete.useMutation();
+  // TODO: replace with services from user only `trpc.services.getByUserId.useQuery({ userId: user.id })`
+  const getServices = trpc.services.getAll.useQuery();
+  const deleteService = trpc.services.delete.useMutation();
 
   const confirm = useDisclosure();
 
-  const handleDelete = async (id: number) => {
-    await deleteClient.mutateAsync(id);
+  const handleDelete = async (id: Identifier) => {
+    await deleteService.mutateAsync(id);
 
     confirm.onClose();
-    getClients.refetch();
+    getServices.refetch();
   };
 
   const router = useRouter();
 
   return (
     <Box className="flex flex-col gap-4">
-      {getClients.data?.map((client) => (
+      {getServices.data?.map((client) => (
         <Box key={client.id} className="flex justify-between w-full">
           <Box className="flex flex-col">
             <Text>{client.name}</Text>

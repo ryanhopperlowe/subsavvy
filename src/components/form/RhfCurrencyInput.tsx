@@ -10,12 +10,14 @@ import { Fields, RHFInputProps } from "./helpers";
 type RhfCurrencyInputProps<TFields extends Fields> = RHFInputProps<TFields> & {
   max?: number;
   placeholder?: string;
+  isDisabled?: boolean;
 };
 
 export function RhfCurrencyInput<TFields extends Fields>(
   props: RhfCurrencyInputProps<TFields>,
 ) {
-  const { label, name, control, classes, max, ...inputProps } = props;
+  const { label, name, control, classes, max, isDisabled, ...inputProps } =
+    props;
 
   return (
     <Controller
@@ -35,6 +37,7 @@ export function RhfCurrencyInput<TFields extends Fields>(
               {...inputProps}
               allowNegative={false}
               max={max}
+              isDisabled={isDisabled}
               className={classes?.input}
               decimalScale={2}
               onValueChange={({ floatValue }) => onChange(floatValue)}

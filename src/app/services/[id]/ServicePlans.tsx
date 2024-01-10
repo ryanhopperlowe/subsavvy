@@ -7,18 +7,16 @@ import { useEffect, useMemo, useState } from "react";
 
 import { LoadingSpinner } from "@/components";
 import { formatCurrency, trpc } from "@/lib";
-import { BillFrequencyLabels, Plan } from "@/model";
+import { BillFrequencyLabels, Identifier, Plan } from "@/model";
 import { Routes } from "@/routes";
 
+import { DeletePlan } from "./DeletePlan";
 import { EditPlan } from "./EditPlan";
 
-export function ServicePlans({ serviceId }: { serviceId: number }) {
+export function ServicePlans({ serviceId }: { serviceId: Identifier }) {
   const router = useRouter();
 
   const getPlans = trpc.plans.getByServiceId.useQuery(serviceId);
-
-  const [planToEditId, setPlanToEditId] = useState<number | null>(null);
-  const onClosePlanModal = () => setPlanToEditId(null);
 
   const [loadingPlan, setLoadingPlan] = useState<Plan | null>(null);
 
@@ -89,11 +87,19 @@ export function ServicePlans({ serviceId }: { serviceId: number }) {
             </Box>
           </Box>
 
-          <EditPlan
-            plan={plan}
-            onSuccess={setLoadingPlan}
-            isDisabled={getPlans.isFetching && loadingPlan?.id === plan.id}
-          />
+          <Box className="w-full flex gap-2">
+            <EditPlan
+              plan={plan}
+              onSuccess={setLoadingPlan}
+              isDisabled={getPlans.isFetching && loadingPlan?.id === plan.id}
+            />
+
+            <DeletePlan
+              plan={plan}
+              onSuccess={setLoadingPlan}
+              isDisabled={getPlans.isFetching && loadingPlan?.id === plan.id}
+            />
+          </Box>
         </Card>
       ))}
 

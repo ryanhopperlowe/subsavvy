@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { serviceCreateSchema } from "@/model";
+import { Identifier, serviceCreateSchema } from "@/model";
 import { notFound, unauthorized } from "@/server";
 
 import {
@@ -12,8 +12,9 @@ import {
 
 export const serviceRouter = router({
   getAll: publicProcedure.query(({ ctx }) => ctx.dbs.services.getAll()),
+
   getById: authorizedProcedure
-    .input(z.number())
+    .input(Identifier)
     .query(async ({ ctx, input }) => {
       const [service, canView] = await Promise.all([
         ctx.dbs.services.getById(input),
@@ -25,6 +26,7 @@ export const serviceRouter = router({
 
       return service;
     }),
+
   create: authedProcedure
     .input(serviceCreateSchema)
     .mutation(async ({ ctx, input }) => {
@@ -34,8 +36,9 @@ export const serviceRouter = router({
 
       return service;
     }),
+
   delete: authorizedProcedure
-    .input(z.number())
+    .input(Identifier)
     .mutation(async ({ ctx, input }) => {
       const canDelete = await ctx.dbs.services.canDelete(input, ctx.profile.id);
 

@@ -1,44 +1,47 @@
 "use client";
 
 import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
   Button,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
 } from "@chakra-ui/react";
 import React from "react";
 
 interface ConfirmModalProps {
   title?: string;
-  children: React.ReactNode;
+  children?: React.ReactNode;
   onConfirm: () => void;
   onCancel: () => void;
   isOpen: boolean;
 }
 
 export function ConfirmModal(props: ConfirmModalProps) {
+  const {
+    children = "This action cannot be undone.",
+    title = "Are you sure?",
+    isOpen,
+    onCancel,
+    onConfirm,
+  } = props;
+
   return (
-    <Modal isOpen={props.isOpen} onClose={props.onCancel}>
+    <Modal isOpen={isOpen} onClose={onCancel}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>{props.title || "Are you Sure?"}</ModalHeader>
+        <ModalHeader>{title || "Are you Sure?"}</ModalHeader>
         <ModalCloseButton />
-        <ModalBody>{props.children}</ModalBody>
+        <ModalBody>{children}</ModalBody>
 
         <ModalFooter className="flex gap-2">
-          <Button variant="ghost" onClick={props.onCancel}>
+          <Button variant="ghost" onClick={onCancel}>
             Cancel
           </Button>
-          <Button
-            colorScheme="prim"
-            variant="solid"
-            mr={3}
-            onClick={props.onConfirm}
-          >
+          <Button colorScheme="prim" variant="solid" mr={3} onClick={onConfirm}>
             Confirm
           </Button>
         </ModalFooter>

@@ -1,7 +1,7 @@
-import { ZodDate, ZodNumber, ZodObject } from "zod";
+import { ZodDate, ZodNumber, ZodObject, ZodString, z } from "zod";
 
 export const getCreateSchema = <
-  T extends { id: ZodNumber; updatedAt: ZodDate; createdAt: ZodDate },
+  T extends { id: ZodString; updatedAt: ZodDate; createdAt: ZodDate },
 >(
   model: ZodObject<T>,
 ) => {
@@ -13,7 +13,7 @@ export const getCreateSchema = <
 };
 
 export const getUpdateSchema = <
-  T extends { id: ZodNumber; updatedAt: ZodDate; createdAt: ZodDate },
+  T extends { id: ZodString; updatedAt: ZodDate; createdAt: ZodDate },
 >(
   model: ZodObject<T>,
 ) => {
@@ -35,3 +35,6 @@ type ReplaceNestedType<Type, TFind, TReplace> = {
 };
 
 export type Serialized<T> = ReplaceNestedType<T, Date, string>;
+
+export type Identifier = string;
+export const Identifier = z.string().cuid();

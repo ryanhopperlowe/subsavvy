@@ -1,5 +1,6 @@
+import { Identifier, UserCreate, UserUpdate } from "@/model";
+
 import { RootService } from "./RootService";
-import { UserCreate, UserUpdate } from "@/model";
 
 export class UserService extends RootService {
   async findMany() {
@@ -28,7 +29,7 @@ export class UserService extends RootService {
     });
   }
 
-  async delete(id: number) {
+  async delete(id: Identifier) {
     return await this.db.user.delete({
       where: { id },
     });

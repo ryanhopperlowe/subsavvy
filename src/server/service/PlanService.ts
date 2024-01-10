@@ -1,4 +1,4 @@
-import { PlanCreate, PlanUpdate } from "@/model";
+import { Identifier, PlanCreate, PlanUpdate } from "@/model";
 
 import { RootService } from "./RootService";
 
@@ -12,7 +12,11 @@ export class PlanService extends RootService {
     });
   }
 
-  getByServiceId(serviceId: number) {
+  getById(id: Identifier) {
+    return this.db.plan.findUnique({ where: { id } });
+  }
+
+  getByServiceId(serviceId: Identifier) {
     return this.db.plan.findMany({
       where: { serviceId },
       include: { billOptions: true },
@@ -24,5 +28,9 @@ export class PlanService extends RootService {
       where: { id },
       data,
     });
+  }
+
+  delete(id: Identifier) {
+    return this.db.plan.delete({ where: { id } });
   }
 }

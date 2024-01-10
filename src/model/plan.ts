@@ -19,6 +19,7 @@ const BillFrequencyValues = [
 ] as const;
 
 export const BillFrequencyLabels = {
+  [BillFrequency.NEVER]: "Never (Free)",
   [BillFrequency.ONE_TIME]: "One Time",
   [BillFrequency.WEEKLY]: "Weekly",
   [BillFrequency.BIWEEKLY]: "Biweekly",

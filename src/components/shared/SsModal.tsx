@@ -32,10 +32,12 @@ interface CompositeModalProps {
 
 SsModal.Header = ModalHeader;
 SsModal.Body = ModalBody;
-SsModal.Footer = (props: CompositeModalProps) => (
-  <ModalFooter className={"flex justify-end gap-2 " + props.className}>
-    {props.children}
-  </ModalFooter>
-);
+SsModal.Footer = function SsModalFooter(props: CompositeModalProps) {
+  return (
+    <ModalFooter className={"flex justify-end gap-2 " + props.className}>
+      {props.children}
+    </ModalFooter>
+  );
+};
 
 export { SsModal };
