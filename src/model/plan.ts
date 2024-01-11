@@ -35,10 +35,12 @@ export const BillFrequencyOptions = Object.values(BillFrequency).map(
 );
 
 const billOptionSchema = BillOptionModel;
-const billOptionCreateSchema = getCreateSchema(billOptionSchema);
-const billOptionUpdateSchema = getUpdateSchema(billOptionSchema).omit({
+export const billOptionCreateSchema = getCreateSchema(billOptionSchema);
+export const billOptionUpdateSchema = getUpdateSchema(billOptionSchema).omit({
   planId: true,
 });
+
+export type BillOptionUpdate = z.infer<typeof billOptionUpdateSchema>;
 
 const planSchema = PlanModel;
 
@@ -58,3 +60,4 @@ export type PlanIntervalCreate = z.infer<typeof planIntervalCreateSchema>;
 
 export type BillOption = Serialized<PrismaBillOption>;
 export type Plan = Serialized<PrismaPlan>;
+export type PlanWithBillOptions = Plan & { billOptions: BillOption[] };

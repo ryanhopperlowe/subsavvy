@@ -90,9 +90,6 @@ export function PlanCreatePage({ serviceId }: { serviceId: string }) {
   });
 
   const billOptions = form.watch("billOptions");
-  console.log(billOptions);
-
-  console.log(form.formState.isValid, form.formState.errors);
 
   return (
     <form onSubmit={handleSubmit}>
