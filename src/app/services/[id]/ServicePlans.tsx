@@ -27,7 +27,7 @@ export function ServicePlans({ serviceId }: { serviceId: Identifier }) {
   );
 
   const isPlanLoading = (id: Identifier) =>
-    getPlans.isFetching && [updatedPlan?.id, deletedPlan?.id].includes(id);
+    [updatedPlan?.id, deletedPlan?.id].includes(id);
 
   useEffect(() => {
     setUpdatedPlan(null);
@@ -49,75 +49,80 @@ export function ServicePlans({ serviceId }: { serviceId: Identifier }) {
     <Stack spacing={2}>
       <Text fontSize="large">Plan Options:</Text>
 
-      {plans.map((plan) => (
-        <Card
-          key={plan.id}
-          className={cn("p-4 flex flex-col gap-4", {
-            "filter grayscale opacity-60": deletedPlan?.id === plan.id,
-          })}
-          bg="prim.900"
-        >
-          <Box className="w-full flex justify-between align-middle gap-4">
-            <Text fontSize="large" color="prim.500">
-              <b>{plan.name}</b>
-            </Text>
+      {plans.map((plan) => {
+        const isPlanEdited = isPlanLoading(plan.id);
 
-            {isPlanLoading(plan.id) && <LoadingSpinner inline />}
-          </Box>
+        return (
+          <Card
+            key={plan.id}
+            className={cn("p-4 flex flex-col gap-4", {
+              "filter grayscale opacity-60": isPlanEdited,
+            })}
+            bg="prim.900"
+          >
+            <Box className="w-full flex justify-between align-middle gap-4">
+              <Text fontSize="large" color="prim.500">
+                <b>{plan.name}</b>
+              </Text>
 
-          <Text fontSize="small">{plan.description}</Text>
-
-          <Box>
-            <Text fontSize="medium" color="prim.500">
-              Bill Options:
-            </Text>
-
-            <Box className="grid grid-cols-2 gap-2 content-center text-center md:grid-cols-4">
-              {plan.billOptions.map((billOption) => {
-                const isEdited = updatedBillOption?.id === billOption.id;
-
-                return (
-                  <Card
-                    key={billOption.id}
-                    className={cn("p-4", {
-                      "filter grayscale opacity-60": isEdited,
-                    })}
-                    color="prim.500"
-                  >
-                    <Text fontSize="medium">
-                      <b>{BillFrequencyLabels[billOption.interval]}</b>
-                    </Text>
-
-                    <Text fontSize="large">
-                      {formatCurrency(billOption.price)}
-                    </Text>
-
-                    <EditBillOption
-                      billOption={billOption}
-                      onSuccess={setUpdatedBillOption}
-                      ButtonProps={{ isDisabled: isEdited }}
-                    />
-                  </Card>
-                );
-              })}
+              {isPlanEdited && <LoadingSpinner inline />}
             </Box>
-          </Box>
 
-          <Box className="w-full flex gap-2">
-            <EditPlan
-              plan={plan}
-              onSuccess={setUpdatedPlan}
-              isDisabled={isPlanLoading(plan.id)}
-            />
+            <Text fontSize="small">{plan.description}</Text>
 
-            <DeletePlan
-              plan={plan}
-              onSuccess={setDeletedPlan}
-              isDisabled={isPlanLoading(plan.id)}
-            />
-          </Box>
-        </Card>
-      ))}
+            <Box>
+              <Text fontSize="medium" color="prim.500">
+                Bill Options:
+              </Text>
+
+              <Box className="grid grid-cols-2 gap-2 content-center text-center md:grid-cols-4">
+                {plan.billOptions.map((billOption) => {
+                  const isEdited = updatedBillOption?.id === billOption.id;
+
+                  return (
+                    <Card
+                      key={billOption.id}
+                      className={cn("p-4", {
+                        "filter grayscale opacity-60": isEdited,
+                      })}
+                      color="prim.500"
+                    >
+                      <Text fontSize="medium">
+                        <b>{BillFrequencyLabels[billOption.interval]}</b>
+                      </Text>
+
+                      <Text fontSize="large">
+                        {formatCurrency(billOption.price)}
+                      </Text>
+
+                      <EditBillOption
+                        billOption={billOption}
+                        onSuccess={setUpdatedBillOption}
+                        ButtonProps={{ isDisabled: isEdited }}
+                      />
+                    </Card>
+                  );
+                })}
+              </Box>
+            </Box>
+
+            <Box className="w-full flex gap-2">
+              <EditPlan
+                plan={plan}
+                onSuccess={setUpdatedPlan}
+                isDisabled={isPlanEdited}
+              />
+
+              <DeletePlan
+                plan={plan}
+                onSubmit={setDeletedPlan}
+                onError={() => setDeletedPlan(null)}
+                isDisabled={isPlanEdited}
+              />
+            </Box>
+          </Card>
+        );
+      })}
 
       <Button
         colorScheme="prim"

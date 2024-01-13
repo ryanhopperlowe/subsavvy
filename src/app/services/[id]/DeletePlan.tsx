@@ -1,4 +1,6 @@
-import { Button, useDisclosure } from "@chakra-ui/react";
+import { Button, Text, useDisclosure } from "@chakra-ui/react";
+import { TRPCClientError, TRPCClientErrorLike } from "@trpc/client";
+import { TRPCErrorShape } from "@trpc/server/rpc";
 
 import { ConfirmModal } from "@/components";
 import { trpc } from "@/lib";
@@ -7,23 +9,25 @@ import { Plan } from "@/model";
 export function DeletePlan({
   isDisabled,
   plan,
-  onSuccess,
+  onSubmit,
+  onError,
 }: {
   plan: Plan;
-  onSuccess: (plan: Plan) => void;
+  onSubmit: (plan: Plan) => void;
+  onError?: (error: Error) => void;
   isDisabled: boolean;
 }) {
   const utils = trpc.useUtils();
-  const deletePlan = trpc.plans.delete.useMutation();
+  const deletePlan = trpc.plans.delete.useMutation({
+    onError: (err) => onError?.(new Error(err.message)),
+  });
 
   const modal = useDisclosure();
 
   const handleDelete = async () => {
-    await deletePlan.mutateAsync(plan.id);
-
     modal.onClose();
-    utils.plans.invalidate();
-    onSuccess(plan);
+    onSubmit(plan);
+    deletePlan.mutateAsync(plan.id).then(() => utils.plans.invalidate());
   };
 
   return (
@@ -41,6 +45,15 @@ export function DeletePlan({
         onCancel={modal.onClose}
         onConfirm={handleDelete}
       />
+
+      <ConfirmModal
+        isOpen={!!deletePlan.error}
+        onCancel={deletePlan.reset}
+        onConfirm={handleDelete}
+        title={`Error: ${deletePlan.error?.message}`}
+      >
+        <Text>Would you like to retry?</Text>
+      </ConfirmModal>
     </>
   );
 }

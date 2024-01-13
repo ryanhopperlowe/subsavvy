@@ -24,15 +24,15 @@ export function EditBillOption({
   const utils = trpc.useUtils();
   const updateBillOption = trpc.billOptions.update.useMutation();
 
-  const modal = useDisclosure();
-
   const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     modal.onOpen();
     ButtonProps.onClick?.(e);
   };
 
-  const form = useForm<FormData>({
-    defaultValues: { price: billOption.price, interval: billOption.interval },
+  const form = useForm<FormData>();
+
+  const modal = useDisclosure({
+    onOpen: () => form.reset(billOption),
   });
 
   const onSubmit = form.handleSubmit(async (data) => {
@@ -76,7 +76,12 @@ export function EditBillOption({
 
           <SsModal.Footer>
             <Button onClick={modal.onClose}>Cancel</Button>
-            <Button type="submit" colorScheme="prim">
+
+            <Button
+              type="submit"
+              colorScheme="prim"
+              isDisabled={!form.formState.isDirty || !form.formState.isValid}
+            >
               Save
             </Button>
           </SsModal.Footer>

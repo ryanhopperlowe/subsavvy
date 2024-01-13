@@ -47,6 +47,8 @@ export const planRouter = router({
     .mutation(async ({ ctx, input }) => {
       const plan = await ctx.dbs.plans.getById(input);
 
+      throw unauthorized();
+
       if (!plan) throw notFound();
 
       const canDeletePlan = await ctx.dbs.services.canEdit(

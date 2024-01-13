@@ -23,16 +23,17 @@ export function EditPlan({
 
   const utils = trpc.useUtils();
 
-  const form = useForm<FormData>({ defaultValues: plan });
-  const modal = useDisclosure();
+  const form = useForm<FormData>();
+  const modal = useDisclosure({
+    onOpen: () => form.reset(plan),
+  });
 
   const handleSubmit = form.handleSubmit(async (data) => {
     const newPlan: Plan = { ...plan, ...data };
-    await updatePlan.mutateAsync(newPlan);
 
+    updatePlan.mutateAsync(newPlan).then(() => utils.plans.invalidate());
     modal.onClose();
     onSuccess(newPlan);
-    utils.plans.getByServiceId.invalidate(plan.serviceId);
   });
 
   return (
