@@ -1,7 +1,8 @@
 import { Button, useDisclosure } from "@chakra-ui/react";
+import { error } from "console";
 import { useForm } from "react-hook-form";
 
-import { RhfInput, RhfTextArea, SsModal } from "@/components";
+import { RetryModal, RhfInput, RhfTextArea, SsModal } from "@/components";
 import { trpc } from "@/lib";
 import { Plan } from "@/model";
 
@@ -12,29 +13,33 @@ interface FormData {
 
 export function EditPlan({
   plan,
-  onSuccess,
+  onSubmit,
   isDisabled,
+  onError,
 }: {
-  onSuccess: (plan: Plan) => void;
+  onSubmit: (plan: Plan) => void;
+  onError?: (error: Error) => void;
   plan: Plan;
   isDisabled?: boolean;
 }) {
-  const updatePlan = trpc.plans.update.useMutation();
+  const updatePlan = trpc.plans.update.useMutation({
+    onError: (err) => onError?.(new Error(err.message)),
+  });
 
   const utils = trpc.useUtils();
 
   const form = useForm<FormData>();
   const modal = useDisclosure({
-    onOpen: () => form.reset(plan),
+    onOpen: () => !updatePlan.isError && form.reset(plan),
   });
 
-  const handleSubmit = form.handleSubmit(async (data) => {
+  const handleSubmit = async (data: FormData) => {
     const newPlan: Plan = { ...plan, ...data };
 
     updatePlan.mutateAsync(newPlan).then(() => utils.plans.invalidate());
     modal.onClose();
-    onSuccess(newPlan);
-  });
+    onSubmit(newPlan);
+  };
 
   return (
     <>
@@ -48,7 +53,7 @@ export function EditPlan({
       </Button>
 
       <SsModal isOpen={modal.isOpen} onClose={modal.onClose}>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={form.handleSubmit(handleSubmit)}>
           <SsModal.Header>Edit Plan</SsModal.Header>
 
           <SsModal.Body>
@@ -77,6 +82,16 @@ export function EditPlan({
           </SsModal.Footer>
         </form>
       </SsModal>
+
+      <RetryModal
+        isOpen={updatePlan.isError}
+        onCancel={() => {
+          updatePlan.reset();
+          modal.onOpen();
+        }}
+        onRetry={() => handleSubmit(form.getValues())}
+        message={updatePlan.error?.message}
+      />
     </>
   );
 }

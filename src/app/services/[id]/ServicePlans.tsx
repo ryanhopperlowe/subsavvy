@@ -60,12 +60,31 @@ export function ServicePlans({ serviceId }: { serviceId: Identifier }) {
             })}
             bg="prim.900"
           >
-            <Box className="w-full flex justify-between align-middle gap-4">
-              <Text fontSize="large" color="prim.500">
+            <Box className="w-full flex justify-between items-center gap-4">
+              <Text
+                fontSize="large"
+                color="prim.500"
+                className="flex gap-4 items-center"
+              >
+                {isPlanEdited && <LoadingSpinner inline size="md" />}
                 <b>{plan.name}</b>
               </Text>
 
-              {isPlanEdited && <LoadingSpinner inline />}
+              <Box className="flex gap-2">
+                <EditPlan
+                  plan={plan}
+                  onSubmit={setUpdatedPlan}
+                  isDisabled={isPlanEdited}
+                  onError={() => setUpdatedPlan(null)}
+                />
+
+                <DeletePlan
+                  plan={plan}
+                  onSubmit={setDeletedPlan}
+                  onError={() => setDeletedPlan(null)}
+                  isDisabled={isPlanEdited}
+                />
+              </Box>
             </Box>
 
             <Text fontSize="small">{plan.description}</Text>
@@ -75,50 +94,42 @@ export function ServicePlans({ serviceId }: { serviceId: Identifier }) {
                 Bill Options:
               </Text>
 
-              <Box className="grid grid-cols-2 gap-2 content-center text-center md:grid-cols-4">
+              <Box className="flex flex-col gap-2">
                 {plan.billOptions.map((billOption) => {
                   const isEdited = updatedBillOption?.id === billOption.id;
 
                   return (
                     <Card
                       key={billOption.id}
-                      className={cn("p-4", {
-                        "filter grayscale opacity-60": isEdited,
-                      })}
+                      className={cn(
+                        "flex flex-row items-center justify-between p-4",
+                        {
+                          "filter grayscale opacity-60": isEdited,
+                        },
+                      )}
                       color="prim.500"
                     >
-                      <Text fontSize="medium">
-                        <b>{BillFrequencyLabels[billOption.interval]}</b>
-                      </Text>
+                      <Box as="span" className="flex flex-col gap-2">
+                        <Text as="span" fontSize="medium">
+                          <b>{BillFrequencyLabels[billOption.interval]}</b>
+                        </Text>
 
-                      <Text fontSize="large">
-                        {formatCurrency(billOption.price)}
-                      </Text>
+                        <Text as="span" fontSize="large">
+                          {formatCurrency(billOption.price)}
+                        </Text>
+                      </Box>
 
-                      <EditBillOption
-                        billOption={billOption}
-                        onSuccess={setUpdatedBillOption}
-                        ButtonProps={{ isDisabled: isEdited }}
-                      />
+                      <Box>
+                        <EditBillOption
+                          billOption={billOption}
+                          onSuccess={setUpdatedBillOption}
+                          ButtonProps={{ isDisabled: isEdited }}
+                        />
+                      </Box>
                     </Card>
                   );
                 })}
               </Box>
-            </Box>
-
-            <Box className="w-full flex gap-2">
-              <EditPlan
-                plan={plan}
-                onSuccess={setUpdatedPlan}
-                isDisabled={isPlanEdited}
-              />
-
-              <DeletePlan
-                plan={plan}
-                onSubmit={setDeletedPlan}
-                onError={() => setDeletedPlan(null)}
-                isDisabled={isPlanEdited}
-              />
             </Box>
           </Card>
         );
