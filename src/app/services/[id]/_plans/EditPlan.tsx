@@ -15,15 +15,15 @@ export function EditPlan({
   plan,
   onSubmit,
   isDisabled,
-  onError,
+  onCompleted,
 }: {
   onSubmit: (plan: Plan) => void;
-  onError?: (error: Error) => void;
   plan: Plan;
   isDisabled?: boolean;
+  onCompleted?: () => void;
 }) {
   const updatePlan = trpc.plans.update.useMutation({
-    onError: (err) => onError?.(new Error(err.message)),
+    onSettled: onCompleted,
   });
 
   const utils = trpc.useUtils();

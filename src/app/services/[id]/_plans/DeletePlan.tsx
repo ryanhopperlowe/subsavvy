@@ -1,6 +1,4 @@
 import { Button, Text, useDisclosure } from "@chakra-ui/react";
-import { TRPCClientError, TRPCClientErrorLike } from "@trpc/client";
-import { TRPCErrorShape } from "@trpc/server/rpc";
 
 import { ConfirmModal } from "@/components";
 import { trpc } from "@/lib";
@@ -10,17 +8,15 @@ export function DeletePlan({
   isDisabled,
   plan,
   onSubmit,
-  onError,
+  onCompleted,
 }: {
   plan: Plan;
   onSubmit: (plan: Plan) => void;
-  onError?: (error: Error) => void;
+  onCompleted?: () => void;
   isDisabled: boolean;
 }) {
   const utils = trpc.useUtils();
-  const deletePlan = trpc.plans.delete.useMutation({
-    onError: (err) => onError?.(new Error(err.message)),
-  });
+  const deletePlan = trpc.plans.delete.useMutation({ onSettled: onCompleted });
 
   const modal = useDisclosure();
 

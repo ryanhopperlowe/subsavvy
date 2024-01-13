@@ -14,11 +14,11 @@ type FormData = {
 
 export function EditBillOption({
   billOption,
-  onSuccess,
+  onSubmit: onSuccess,
   ButtonProps = {},
 }: {
   billOption: BillOption;
-  onSuccess?: (billOption: BillOption) => void;
+  onSubmit?: (billOption: BillOption) => void;
   ButtonProps?: Partial<ComponentProps<typeof Button>>;
 }) {
   const utils = trpc.useUtils();
