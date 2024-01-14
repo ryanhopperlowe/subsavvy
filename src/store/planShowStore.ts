@@ -8,11 +8,10 @@ interface PlanShowStore {
   addedBillOption: BillOption | null;
   setUpdatedPlan: (id: Identifier | null) => void;
   setUpdatedBillOption: (id: Identifier | null) => void;
-  setAddedBillOption: (billOption: BillOption) => void;
+  setAddedBillOption: (billOption: BillOption | null) => void;
   clear: () => void;
   isPlanLoading: (id: Identifier) => boolean;
   isBillOptionLoading: (id: Identifier) => boolean;
-  isLoading: () => boolean;
 }
 
 export const usePlanShowStore = create<PlanShowStore>()((set, get) => ({
@@ -29,7 +28,6 @@ export const usePlanShowStore = create<PlanShowStore>()((set, get) => ({
 
   isPlanLoading: (id) => get().updatedPlan === id,
   isBillOptionLoading: (id) => get().updatedBillOption === id,
-  isLoading: () => !!get().updatedPlan || !!get().updatedBillOption,
 }));
 
 export function usePlanLoadState(id: Identifier) {
@@ -37,8 +35,11 @@ export function usePlanLoadState(id: Identifier) {
     isLoading: state.isPlanLoading(id),
     initiateLoading: () => state.setUpdatedPlan(id),
     cancelLoading: () => state.setUpdatedPlan(null),
-    addBillOption: state.setAddedBillOption,
-    addedBillOption: state.addedBillOption,
+    addBillOption: (billOption: BillOption) =>
+      state.setAddedBillOption(billOption),
+    cancelAddBillOption: () => state.setAddedBillOption(null),
+    addedBillOption:
+      state.addedBillOption?.planId === id ? state.addedBillOption : null,
   }));
 }
 

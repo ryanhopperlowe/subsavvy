@@ -11,10 +11,12 @@ import { EditBillOption } from "./EditBillOption";
 
 export function BillOptionDisplay({
   billOption,
-  isPending,
+  canDelete,
+  canEdit,
 }: {
   billOption: BillOption;
-  isPending?: boolean;
+  canDelete?: boolean;
+  canEdit?: boolean;
 }) {
   const { isLoading, initiateLoading, cancelLoading } = useBillOptionLoadState(
     billOption.id,
@@ -41,19 +43,23 @@ export function BillOptionDisplay({
       </Box>
 
       <Box className="flex gap-2 items-center">
-        <EditBillOption
-          billOption={billOption}
-          onSubmit={initiateLoading}
-          onError={cancelLoading}
-          ButtonProps={{ isDisabled: isLoading }}
-        />
+        {canEdit && (
+          <EditBillOption
+            billOption={billOption}
+            onSubmit={initiateLoading}
+            onError={cancelLoading}
+            ButtonProps={{ isDisabled: isLoading }}
+          />
+        )}
 
-        <DeleteBillOption
-          billOption={billOption}
-          isDisabled={isLoading}
-          onSubmit={initiateLoading}
-          onError={cancelLoading}
-        />
+        {canDelete && (
+          <DeleteBillOption
+            billOption={billOption}
+            isDisabled={isLoading}
+            onSubmit={initiateLoading}
+            onError={cancelLoading}
+          />
+        )}
 
         {isLoading && <LoadingSpinner inline size="md" />}
       </Box>

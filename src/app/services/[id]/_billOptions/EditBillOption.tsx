@@ -1,9 +1,8 @@
-import { Button, useDisclosure } from "@chakra-ui/react";
-import { ComponentProps } from "react";
+import { Button, ButtonProps, useDisclosure } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { v4 as uuid } from "uuid";
 
-import { RhfCurrencyInput, SsModal } from "@/components";
+import { RetryModal, RhfCurrencyInput, SsModal } from "@/components";
 import { RhfSelect } from "@/components/form/RhfSelect";
 import { trpc } from "@/lib";
 import { BillFrequency, BillFrequencyOptions, BillOption } from "@/model";
@@ -19,7 +18,7 @@ type EditBillOptionProps = RequireOneOf<{
   planId: string;
 }> & {
   onSubmit?: (billOption: BillOption) => void;
-  ButtonProps?: Partial<ComponentProps<typeof Button>>;
+  ButtonProps?: Partial<ButtonProps>;
   onComplete?: () => void;
   onError?: () => void;
 };
@@ -122,6 +121,16 @@ export function EditBillOption({
           </SsModal.Footer>
         </form>
       </SsModal>
+
+      <RetryModal
+        isOpen={updateBillOption.isError || createBillOption.isError}
+        onCancel={() => {
+          updateBillOption.reset();
+          createBillOption.reset();
+          modal.onOpen();
+        }}
+        onRetry={() => handleSubmit(form.getValues())}
+      />
     </>
   );
 }

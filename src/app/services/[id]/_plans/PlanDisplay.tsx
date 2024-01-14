@@ -16,6 +16,7 @@ export function PlanDisplay({ plan }: { plan: PlanWithBillOptions }) {
   const {
     isLoading,
     addBillOption,
+    cancelAddBillOption,
     cancelLoading,
     initiateLoading,
     addedBillOption,
@@ -66,14 +67,23 @@ export function PlanDisplay({ plan }: { plan: PlanWithBillOptions }) {
 
         <Box className="flex flex-col gap-2">
           {plan.billOptions.map((billOption) => (
-            <BillOptionDisplay key={billOption.id} billOption={billOption} />
+            <BillOptionDisplay
+              key={billOption.id}
+              billOption={billOption}
+              canEdit
+              canDelete={!!plan.billOptions.length}
+            />
           ))}
 
           {addedBillOption && (
             <BillOptionDisplay billOption={addedBillOption} />
           )}
 
-          <EditBillOption planId={plan.id} onSubmit={addBillOption} />
+          <EditBillOption
+            planId={plan.id}
+            onSubmit={addBillOption}
+            onError={cancelAddBillOption}
+          />
         </Box>
       </Box>
     </Card>
