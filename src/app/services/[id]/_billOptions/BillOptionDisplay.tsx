@@ -6,6 +6,7 @@ import { formatCurrency } from "@/lib";
 import { BillFrequencyLabels, BillOption } from "@/model";
 import { usePlanShowStore } from "@/store";
 
+import { DeleteBillOption } from "./DeleteBillOption";
 import { EditBillOption } from "./EditBillOption";
 
 export function BillOptionDisplay({ billOption }: { billOption: BillOption }) {
@@ -41,6 +42,13 @@ export function BillOptionDisplay({ billOption }: { billOption: BillOption }) {
           onSubmit={setIsUpdating.on}
           ButtonProps={{ isDisabled: isLoading }}
           onComplete={setIsUpdating.off}
+        />
+
+        <DeleteBillOption
+          billOption={billOption}
+          isDisabled={isLoading}
+          onSubmit={setIsUpdating.on}
+          onCompleted={setIsUpdating.off}
         />
 
         {isLoading && <LoadingSpinner inline size="md" />}

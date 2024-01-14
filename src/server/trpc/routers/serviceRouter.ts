@@ -1,6 +1,10 @@
 import { z } from "zod";
 
-import { Identifier, serviceCreateSchema } from "@/model";
+import {
+  Identifier,
+  billOptionCreateSchema,
+  serviceCreateSchema,
+} from "@/model";
 import { notFound, unauthorized } from "@/server";
 
 import {
@@ -45,5 +49,18 @@ export const serviceRouter = router({
       if (!canDelete) throw unauthorized();
 
       return ctx.dbs.services.deleteService(input);
+    }),
+
+  addBillOption: authorizedProcedure
+    .input(billOptionCreateSchema.required({ serviceId: true }))
+    .mutation(async ({ ctx, input }) => {
+      const canEdit = await ctx.dbs.services.canEdit(
+        input.serviceId,
+        ctx.profile.id,
+      );
+
+      if (!canEdit) throw unauthorized();
+
+      return ctx.dbs.billOptions.create(input);
     }),
 });

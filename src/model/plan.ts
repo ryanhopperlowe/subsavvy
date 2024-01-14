@@ -6,7 +6,12 @@ import {
 import { z } from "zod";
 
 import { BillOptionModel, PlanModel } from "$/models";
-import { Serialized, getCreateSchema, getUpdateSchema } from "./shared";
+import {
+  Identifier,
+  Serialized,
+  getCreateSchema,
+  getUpdateSchema,
+} from "./shared";
 
 export type BillFrequency = PrismaBillFrequency;
 export const BillFrequency = PrismaBillFrequency;
@@ -35,12 +40,15 @@ export const BillFrequencyOptions = Object.values(BillFrequency).map(
 );
 
 const billOptionSchema = BillOptionModel;
-export const billOptionCreateSchema = getCreateSchema(billOptionSchema);
+export const billOptionCreateSchema = getCreateSchema(billOptionSchema).extend({
+  serviceId: Identifier.optional(),
+});
 export const billOptionUpdateSchema = getUpdateSchema(billOptionSchema).omit({
   planId: true,
 });
 
 export type BillOptionUpdate = z.infer<typeof billOptionUpdateSchema>;
+export type BillOptionCreate = z.infer<typeof billOptionCreateSchema>;
 
 const planSchema = PlanModel;
 
