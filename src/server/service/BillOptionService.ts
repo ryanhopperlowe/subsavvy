@@ -5,8 +5,10 @@ import { notFound } from "../auth";
 import { RootService } from "./RootService";
 
 export class BillOptionService extends RootService {
-  async create(data: BillOptionCreate) {
-    return this.db.billOption.create({ data });
+  async create(planId: Identifier, data: BillOptionCreate) {
+    return this.db.billOption.create({
+      data: { ...data, planId },
+    });
   }
 
   async update({ id, ...data }: BillOptionUpdate) {
@@ -23,7 +25,7 @@ export class BillOptionService extends RootService {
       select: { plan: { select: { service: { select: { ownerId: true } } } } },
     });
 
-    if (!billOption) throw notFound();
+    if (!billOption) throw notFound("Billing Option");
 
     return billOption.plan.service.ownerId === userId;
   }

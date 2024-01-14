@@ -8,10 +8,10 @@ export function unauthorized() {
   });
 }
 
-export function notFound() {
+export function notFound(item?: string) {
   return new TRPCError({
     code: "NOT_FOUND",
-    message: "Not found",
+    message: item ? `${item} could not be found` : "Not found",
   });
 }
 

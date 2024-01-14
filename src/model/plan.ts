@@ -41,7 +41,7 @@ export const BillFrequencyOptions = Object.values(BillFrequency).map(
 
 const billOptionSchema = BillOptionModel;
 export const billOptionCreateSchema = getCreateSchema(billOptionSchema).extend({
-  serviceId: Identifier.optional(),
+  planId: Identifier.optional(),
 });
 export const billOptionUpdateSchema = getUpdateSchema(billOptionSchema).omit({
   planId: true,

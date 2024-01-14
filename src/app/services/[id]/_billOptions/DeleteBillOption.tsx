@@ -9,26 +9,25 @@ export function DeleteBillOption({
   isDisabled,
   billOption,
   onSubmit,
+  onError,
   onCompleted,
 }: {
   billOption: BillOption;
   onSubmit: (billOption: BillOption) => void;
   onCompleted?: () => void;
+  onError?: () => void;
   isDisabled: boolean;
 }) {
-  const { setUpdatedBillOption } = usePlanShowStore();
-
   const utils = trpc.useUtils();
   const deleteBillOption = trpc.billOptions.delete.useMutation({
     onSettled: onCompleted,
-    onError: () => setUpdatedBillOption(null),
+    onError: onError,
   });
 
   const modal = useDisclosure();
 
   const handleDelete = async () => {
     onSubmit(billOption);
-    setUpdatedBillOption(billOption.id);
     modal.onClose();
     deleteBillOption
       .mutateAsync(billOption.id)

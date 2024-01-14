@@ -1,5 +1,7 @@
 import { Identifier, PlanCreate, PlanUpdate } from "@/model";
 
+import { notFound } from "../auth";
+
 import { RootService } from "./RootService";
 
 export class PlanService extends RootService {
@@ -32,5 +34,16 @@ export class PlanService extends RootService {
 
   delete(id: Identifier) {
     return this.db.plan.delete({ where: { id } });
+  }
+
+  async canEditPlan(planId: Identifier, userId: Identifier) {
+    const response = await this.db.plan.findUnique({
+      where: { id: planId },
+      select: { service: { select: { ownerId: true } } },
+    });
+
+    if (!response) throw notFound("Plan");
+
+    return response.service.ownerId === userId;
   }
 }

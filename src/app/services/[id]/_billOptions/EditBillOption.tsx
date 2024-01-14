@@ -1,34 +1,45 @@
 import { Button, useDisclosure } from "@chakra-ui/react";
 import { ComponentProps } from "react";
 import { useForm } from "react-hook-form";
+import { v4 as uuid } from "uuid";
 
-import { LoadingSpinner, RhfCurrencyInput, SsModal } from "@/components";
+import { RhfCurrencyInput, SsModal } from "@/components";
 import { RhfSelect } from "@/components/form/RhfSelect";
 import { trpc } from "@/lib";
 import { BillFrequency, BillFrequencyOptions, BillOption } from "@/model";
-import { usePlanShowStore } from "@/store";
+import { RequireOneOf } from "@/types";
 
 type FormData = {
   price: number;
   interval: BillFrequency;
 };
 
-export function EditBillOption({
-  billOption,
-  onSubmit,
-  ButtonProps = {},
-  onComplete,
-}: {
+type EditBillOptionProps = RequireOneOf<{
   billOption: BillOption;
+  planId: string;
+}> & {
   onSubmit?: (billOption: BillOption) => void;
   ButtonProps?: Partial<ComponentProps<typeof Button>>;
-  onComplete: () => void;
-}) {
-  const { setUpdatedBillOption } = usePlanShowStore();
+  onComplete?: () => void;
+  onError?: () => void;
+};
 
+export function EditBillOption({
+  ButtonProps = {},
+  billOption,
+  onComplete,
+  onError,
+  onSubmit,
+  planId,
+}: EditBillOptionProps) {
   const utils = trpc.useUtils();
   const updateBillOption = trpc.billOptions.update.useMutation({
     onSettled: onComplete,
+    onError,
+  });
+  const createBillOption = trpc.plans.addBillOption.useMutation({
+    onSettled: onComplete,
+    onError,
   });
 
   const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -43,12 +54,27 @@ export function EditBillOption({
   });
 
   const handleSubmit = async (data: FormData) => {
-    const newBillOption = { ...billOption, ...data };
-    updateBillOption
-      .mutateAsync(newBillOption)
-      .then(() => utils.plans.invalidate());
+    let newBillOption: BillOption;
 
-    setUpdatedBillOption(newBillOption.id);
+    if (billOption?.id) {
+      newBillOption = { ...billOption, ...data };
+
+      updateBillOption
+        .mutateAsync(newBillOption)
+        .then(() => utils.plans.invalidate());
+    } else {
+      newBillOption = {
+        ...data,
+        id: uuid(),
+        isFree: data.interval === BillFrequency.NEVER,
+        planId,
+      } as BillOption;
+
+      createBillOption
+        .mutateAsync(newBillOption)
+        .then(() => utils.plans.invalidate());
+    }
+
     onSubmit?.(newBillOption);
     modal.onClose();
   };
@@ -60,7 +86,7 @@ export function EditBillOption({
         onClick={handleButtonClick}
         className="flex gap-2"
       >
-        Edit
+        {billOption?.id ? "Edit" : "Add"}
       </Button>
 
       <SsModal isOpen={modal.isOpen} onClose={modal.onClose}>

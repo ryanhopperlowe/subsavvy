@@ -3,30 +3,31 @@ import { Button, Text, useDisclosure } from "@chakra-ui/react";
 import { ConfirmModal } from "@/components";
 import { trpc } from "@/lib";
 import { Plan } from "@/model";
-import { usePlanShowStore } from "@/store";
 
 export function DeletePlan({
   isDisabled,
   plan,
   onSubmit,
   onCompleted,
+  onError,
 }: {
   plan: Plan;
   onSubmit: (plan: Plan) => void;
   onCompleted?: () => void;
+  onError?: () => void;
   isDisabled: boolean;
 }) {
-  const { setUpdatedPlan } = usePlanShowStore();
-
   const utils = trpc.useUtils();
-  const deletePlan = trpc.plans.delete.useMutation({ onSettled: onCompleted });
+  const deletePlan = trpc.plans.delete.useMutation({
+    onSettled: onCompleted,
+    onError,
+  });
 
   const modal = useDisclosure();
 
   const handleDelete = async () => {
     modal.onClose();
     onSubmit(plan);
-    setUpdatedPlan(plan.id);
     deletePlan.mutateAsync(plan.id).then(() => utils.plans.invalidate());
   };
 

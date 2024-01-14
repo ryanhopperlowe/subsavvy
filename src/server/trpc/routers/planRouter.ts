@@ -1,6 +1,12 @@
+import { log } from "util";
 import { z } from "zod";
 
-import { Identifier, planCreateSchema, planUpdateSchema } from "@/model";
+import {
+  Identifier,
+  billOptionCreateSchema,
+  planCreateSchema,
+  planUpdateSchema,
+} from "@/model";
 import { notFound, unauthorized } from "@/server";
 
 import { authorizedProcedure, router } from "../trpc";
@@ -45,17 +51,24 @@ export const planRouter = router({
   delete: authorizedProcedure
     .input(Identifier)
     .mutation(async ({ ctx, input }) => {
-      const plan = await ctx.dbs.plans.getById(input);
-
-      if (!plan) throw notFound();
-
-      const canDeletePlan = await ctx.dbs.services.canEdit(
-        plan.serviceId,
-        ctx.profile.id,
-      );
-
+      const canDeletePlan = ctx.dbs.plans.canEditPlan(input, ctx.profile.id);
       if (!canDeletePlan) throw unauthorized();
 
       return ctx.dbs.plans.delete(input);
+    }),
+
+  addBillOption: authorizedProcedure
+    .input(billOptionCreateSchema.required({ planId: true }))
+    .mutation(async ({ ctx, input }) => {
+      console.log(input);
+
+      const canEdit = await ctx.dbs.plans.canEditPlan(
+        input.planId,
+        ctx.profile.id,
+      );
+
+      if (!canEdit) throw unauthorized();
+
+      return ctx.dbs.billOptions.create(input.planId, input);
     }),
 });

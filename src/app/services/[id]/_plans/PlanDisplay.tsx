@@ -1,21 +1,25 @@
-import { Box, Text, useBoolean } from "@chakra-ui/react";
+import { Box, Button, Text, useBoolean } from "@chakra-ui/react";
 import { Card } from "@chakra-ui/react";
 import cn from "classnames";
+import { useState } from "react";
 
 import { LoadingSpinner } from "@/components";
-import { PlanWithBillOptions } from "@/model";
-import { usePlanShowStore } from "@/store";
+import { BillOption, PlanWithBillOptions } from "@/model";
+import { usePlanLoadState, usePlanShowStore } from "@/store";
 
-import { BillOptionDisplay } from "../_billOptions";
+import { BillOptionDisplay, EditBillOption } from "../_billOptions";
 
 import { DeletePlan } from "./DeletePlan";
 import { EditPlan } from "./EditPlan";
 
 export function PlanDisplay({ plan }: { plan: PlanWithBillOptions }) {
-  const { updatedPlan } = usePlanShowStore();
-
-  const [isUpdating, setIsUpdating] = useBoolean();
-  const isLoading = isUpdating || updatedPlan === plan.id;
+  const {
+    isLoading,
+    addBillOption,
+    cancelLoading,
+    initiateLoading,
+    addedBillOption,
+  } = usePlanLoadState(plan.id);
 
   return (
     <Card
@@ -27,6 +31,7 @@ export function PlanDisplay({ plan }: { plan: PlanWithBillOptions }) {
     >
       <Box className="w-full flex justify-between items-center gap-4">
         <Text
+          as="span"
           fontSize="large"
           color="prim.500"
           className="flex gap-4 items-center"
@@ -38,15 +43,15 @@ export function PlanDisplay({ plan }: { plan: PlanWithBillOptions }) {
         <Box className="flex gap-2">
           <EditPlan
             plan={plan}
-            onSubmit={setIsUpdating.on}
+            onSubmit={initiateLoading}
             isDisabled={isLoading}
-            onCompleted={setIsUpdating.off}
+            onError={cancelLoading}
           />
 
           <DeletePlan
             plan={plan}
-            onSubmit={setIsUpdating.on}
-            onCompleted={setIsUpdating.off}
+            onSubmit={initiateLoading}
+            onError={cancelLoading}
             isDisabled={isLoading}
           />
         </Box>
@@ -63,6 +68,12 @@ export function PlanDisplay({ plan }: { plan: PlanWithBillOptions }) {
           {plan.billOptions.map((billOption) => (
             <BillOptionDisplay key={billOption.id} billOption={billOption} />
           ))}
+
+          {addedBillOption && (
+            <BillOptionDisplay billOption={addedBillOption} />
+          )}
+
+          <EditBillOption planId={plan.id} onSubmit={addBillOption} />
         </Box>
       </Box>
     </Card>

@@ -17,16 +17,17 @@ export function EditPlan({
   onSubmit,
   isDisabled,
   onCompleted,
+  onError,
 }: {
   onSubmit: (plan: Plan) => void;
   plan: Plan;
   isDisabled?: boolean;
   onCompleted?: () => void;
+  onError?: () => void;
 }) {
-  const { setUpdatedPlan } = usePlanShowStore();
-
   const updatePlan = trpc.plans.update.useMutation({
     onSettled: onCompleted,
+    onError,
   });
 
   const utils = trpc.useUtils();
@@ -40,7 +41,6 @@ export function EditPlan({
     const newPlan: Plan = { ...plan, ...data };
 
     updatePlan.mutateAsync(newPlan).then(() => utils.plans.invalidate());
-    setUpdatedPlan(newPlan.id);
     modal.onClose();
     onSubmit(newPlan);
   };

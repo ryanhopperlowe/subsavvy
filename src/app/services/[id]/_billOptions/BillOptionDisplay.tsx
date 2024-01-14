@@ -4,17 +4,21 @@ import cn from "classnames";
 import { LoadingSpinner } from "@/components";
 import { formatCurrency } from "@/lib";
 import { BillFrequencyLabels, BillOption } from "@/model";
-import { usePlanShowStore } from "@/store";
+import { useBillOptionLoadState } from "@/store";
 
 import { DeleteBillOption } from "./DeleteBillOption";
 import { EditBillOption } from "./EditBillOption";
 
-export function BillOptionDisplay({ billOption }: { billOption: BillOption }) {
-  const { updatedBillOption } = usePlanShowStore();
-
-  const [isUpdating, setIsUpdating] = useBoolean();
-
-  const isLoading = isUpdating || updatedBillOption === billOption.id;
+export function BillOptionDisplay({
+  billOption,
+  isPending,
+}: {
+  billOption: BillOption;
+  isPending?: boolean;
+}) {
+  const { isLoading, initiateLoading, cancelLoading } = useBillOptionLoadState(
+    billOption.id,
+  );
 
   return (
     <Card
@@ -39,16 +43,16 @@ export function BillOptionDisplay({ billOption }: { billOption: BillOption }) {
       <Box className="flex gap-2 items-center">
         <EditBillOption
           billOption={billOption}
-          onSubmit={setIsUpdating.on}
+          onSubmit={initiateLoading}
+          onError={cancelLoading}
           ButtonProps={{ isDisabled: isLoading }}
-          onComplete={setIsUpdating.off}
         />
 
         <DeleteBillOption
           billOption={billOption}
           isDisabled={isLoading}
-          onSubmit={setIsUpdating.on}
-          onCompleted={setIsUpdating.off}
+          onSubmit={initiateLoading}
+          onError={cancelLoading}
         />
 
         {isLoading && <LoadingSpinner inline size="md" />}
