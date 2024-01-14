@@ -4,6 +4,7 @@ import cn from "classnames";
 
 import { LoadingSpinner } from "@/components";
 import { PlanWithBillOptions } from "@/model";
+import { usePlanShowStore } from "@/store";
 
 import { BillOptionDisplay } from "../_billOptions";
 
@@ -11,8 +12,10 @@ import { DeletePlan } from "./DeletePlan";
 import { EditPlan } from "./EditPlan";
 
 export function PlanDisplay({ plan }: { plan: PlanWithBillOptions }) {
+  const { updatedPlan } = usePlanShowStore();
+
   const [isUpdating, setIsUpdating] = useBoolean();
-  const isLoading = isUpdating;
+  const isLoading = isUpdating || updatedPlan === plan.id;
 
   return (
     <Card

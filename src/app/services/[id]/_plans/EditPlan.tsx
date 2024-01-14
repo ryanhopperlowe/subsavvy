@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { RetryModal, RhfInput, RhfTextArea, SsModal } from "@/components";
 import { trpc } from "@/lib";
 import { Plan } from "@/model";
+import { usePlanShowStore } from "@/store";
 
 interface FormData {
   name: string;
@@ -22,6 +23,8 @@ export function EditPlan({
   isDisabled?: boolean;
   onCompleted?: () => void;
 }) {
+  const { setUpdatedPlan } = usePlanShowStore();
+
   const updatePlan = trpc.plans.update.useMutation({
     onSettled: onCompleted,
   });
@@ -37,6 +40,7 @@ export function EditPlan({
     const newPlan: Plan = { ...plan, ...data };
 
     updatePlan.mutateAsync(newPlan).then(() => utils.plans.invalidate());
+    setUpdatedPlan(newPlan.id);
     modal.onClose();
     onSubmit(newPlan);
   };
