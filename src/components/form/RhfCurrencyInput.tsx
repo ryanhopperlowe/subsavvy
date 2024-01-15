@@ -40,7 +40,7 @@ export function RhfCurrencyInput<TFields extends Fields>(
               isDisabled={isDisabled}
               className={classes?.input}
               decimalScale={2}
-              onValueChange={({ floatValue }) => onChange(floatValue)}
+              onValueChange={({ floatValue }) => onChange(floatValue || 0)}
             />
           </InputGroup>
         </InputBase>
