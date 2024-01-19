@@ -44,7 +44,7 @@ const home = new Route("/");
 const user = home.createRoute("/user");
 const updateProfile = user.createRoute("/update");
 
-const services = home.createRoute("/services");
+const services = home.createRoute("/my-services");
 const serviceView = services.createRoute<{}, { id: string }>("/:id");
 const createService = services.createRoute("/create");
 

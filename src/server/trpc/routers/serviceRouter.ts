@@ -25,6 +25,10 @@ export const serviceRouter = router({
       return service;
     }),
 
+  getByAuthedUser: authorizedProcedure.query(async ({ ctx }) =>
+    ctx.dbs.services.getByUserId(ctx.profile.id),
+  ),
+
   create: authedProcedure
     .input(serviceCreateSchema)
     .mutation(async ({ ctx, input }) => {

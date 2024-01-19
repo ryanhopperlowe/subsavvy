@@ -9,8 +9,7 @@ import { Identifier } from "@/model";
 import { Routes } from "@/routes";
 
 export default function ServiceListPage() {
-  // TODO: replace with services from user only `trpc.services.getByUserId.useQuery({ userId: user.id })`
-  const getServices = trpc.services.getAll.useQuery();
+  const getServices = trpc.services.getByAuthedUser.useQuery();
   const deleteService = trpc.services.delete.useMutation();
 
   const confirm = useDisclosure();

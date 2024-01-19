@@ -11,6 +11,12 @@ export class ServiceService extends RootService {
     });
   }
 
+  async getByUserId(userId: Identifier) {
+    return this.db.service.findMany({
+      where: { ownerId: userId },
+    });
+  }
+
   async create(user: Session["user"], data: ServiceCreate) {
     return this.db.service.create({
       data: {
